@@ -36,12 +36,12 @@ public class IAM {
     @JoinColumn(name="email")
     private Member member;
 
-    @OneToMany(mappedBy = "iam")
+    @OneToMany(mappedBy = "iam", cascade = CascadeType.ALL)
     private List<ComplianceResult> complianceResults = new ArrayList<>();
 
     @OneToMany(mappedBy = "iam")
     private List<ErrorLog> errorLogs = new ArrayList<>();
 
-    @OneToMany(mappedBy = "iam")
+    @OneToMany(mappedBy = "iam", cascade = CascadeType.ALL)
     private List<DescribeResult> describeResults = new ArrayList<>();
 }

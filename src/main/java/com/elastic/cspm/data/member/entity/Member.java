@@ -1,6 +1,6 @@
 package com.elastic.cspm.data.member.entity;
 
-import com.elastic.cspm.data.group.entity.Group;
+import com.elastic.cspm.data.group.entity.ScanGroup;
 import com.elastic.cspm.data.iam.entity.IAM;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -42,9 +42,9 @@ public class Member implements UserDetails {
     private String accountId;
 
     @OneToMany(mappedBy = "member")
-    private List<Group> groups = new ArrayList<>();
+    private List<ScanGroup> groups = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<IAM> iams = new ArrayList<>();
 
 

@@ -1,7 +1,6 @@
 package com.elastic.cspm.data.policy.entity;
 
 import com.elastic.cspm.data.compliance_result.entity.ComplianceResult;
-import com.elastic.cspm.data.utils.Length;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
