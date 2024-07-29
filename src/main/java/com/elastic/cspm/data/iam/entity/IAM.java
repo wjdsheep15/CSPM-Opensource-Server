@@ -32,18 +32,16 @@ public class IAM {
     @Column(name="region", nullable = false)
     private String region;
 
-    @OneToMany(mappedBy = "iam", fetch = LAZY)
-    private List<Member> members = new ArrayList<>();
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name="email")
+    private Member member;
 
-    @ManyToOne
-    @JoinColumn(name="compliance_id")
-    private ComplianceResult complianceResult;
+    @OneToMany(mappedBy = "iam")
+    private List<ComplianceResult> complianceResults = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name="errorLog_id")
-    private ErrorLog errorLog;
+    @OneToMany(mappedBy = "iam")
+    private List<ErrorLog> errorLogs = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "describe_id")
-    private DescribeResult describeResult;
+    @OneToMany(mappedBy = "iam")
+    private List<DescribeResult> describeResults = new ArrayList<>();
 }

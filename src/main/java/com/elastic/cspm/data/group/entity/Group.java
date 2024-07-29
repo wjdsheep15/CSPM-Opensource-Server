@@ -52,7 +52,8 @@ public class Group {
     @Column(name = "rds", nullable = false)
     private boolean rds;
 
-    // Member와 일대다
-    @OneToMany(mappedBy = "group", fetch = LAZY)
-    private List<Member> members = new ArrayList<>();
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "email")
+    private Member member;
+
 }
