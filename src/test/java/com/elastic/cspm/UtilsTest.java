@@ -13,7 +13,10 @@ public class UtilsTest {
 
     @Test
     void testAES256(){
+        // 암호화
         String a = utilAES256.encrypt("1234567891023456");
         System.out.println(a);
+        // 복호화
+        System.out.println(utilAES256.decrypt(a));
     }
 }
