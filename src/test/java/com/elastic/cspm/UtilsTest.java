@@ -3,6 +3,7 @@ package com.elastic.cspm;
 import com.elastic.cspm.utils.AES256;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
@@ -28,5 +29,13 @@ public class UtilsTest {
         } else {
             System.out.println("======= False =======");
         }
+    }
+
+    @Value(value = "${java.file.test}")
+    private String envValue;
+
+    @Test
+    void envfile(){
+        System.out.println(envValue);
     }
 }
