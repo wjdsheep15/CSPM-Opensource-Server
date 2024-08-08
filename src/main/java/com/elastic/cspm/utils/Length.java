@@ -1,8 +1,7 @@
-package com.elastic.cspm.data.utils;
+package com.elastic.cspm.utils;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor

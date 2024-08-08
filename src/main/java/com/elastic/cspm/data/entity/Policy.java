@@ -1,12 +1,10 @@
-package com.elastic.cspm.data.policy.entity;
+package com.elastic.cspm.data.entity;
 
-import com.elastic.cspm.data.compliance_result.entity.ComplianceResult;
-import com.elastic.cspm.data.utils.Length;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.elastic.cspm.data.utils.Length.Lengths.SMALL;
+import static com.elastic.cspm.utils.Length.Lengths.SMALL;
 
 
 @Entity
