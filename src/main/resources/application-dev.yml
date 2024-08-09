@@ -18,6 +18,17 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
 
+springdoc:
+  swagger-ui:
+    operations-sorter: alpha(알파멧 오름차순), method(HTTP메소드순)
+    tags-sorter: alpha
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    display-query-params-without-oauth2: true
+
+
+
+
 jwt:
   expiration_time: 86400000 #1일
   secret: e11466888d608f89839f352787123003467e50712fe220bc02537a282d3d04cc
