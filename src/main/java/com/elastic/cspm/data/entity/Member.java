@@ -3,8 +3,6 @@ package com.elastic.cspm.data.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -26,11 +24,9 @@ public class Member implements UserDetails {
     @Column(name="password", nullable = false)
     private String password;
 
-    @CreatedDate
     @Column(name="create_At", nullable = false)
     private LocalDateTime createAt;
 
-    @LastModifiedDate
     @Column(name="update_At", nullable = false)
     private LocalDateTime updateAt;
 
@@ -44,7 +40,7 @@ public class Member implements UserDetails {
     private String accountId;
 
     @OneToMany(mappedBy = "member")
-    private List<Group> groups = new ArrayList<>();
+    private List<ScanGroup> groups = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<IAM> iams = new ArrayList<>();

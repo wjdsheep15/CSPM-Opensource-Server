@@ -9,8 +9,8 @@ import static jakarta.persistence.FetchType.LAZY;
 @Entity
 @Getter
 @Setter
-@Table(name="`Group`")
-public class Group {
+@Table(name="ScanGroup")
+public class ScanGroup {
     @Id
     @Column(name = "resource_group_name")
     private String resourceGroupName;
