@@ -1,10 +1,10 @@
-package com.elastic.cspm.data.policy.entity;
+package com.elastic.cspm.data.entity;
 
-import com.elastic.cspm.data.compliance_result.entity.ComplianceResult;
-import com.elastic.cspm.data.utils.Length;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 import static com.elastic.cspm.data.utils.Length.Lengths.SMALL;
 
@@ -36,7 +36,6 @@ public class Policy {
     @Column(name = "compliance", nullable = false)
     private String compliance; // 취약점 정책
 
-    @ManyToOne
-    @JoinColumn(name = "compliance_id")
-    private ComplianceResult complianceResult;
+    @OneToMany(mappedBy = "policy")
+    private List<ComplianceResult> complianceResults;
 }
