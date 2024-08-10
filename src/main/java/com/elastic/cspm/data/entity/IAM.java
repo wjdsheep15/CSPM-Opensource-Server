@@ -1,9 +1,5 @@
-package com.elastic.cspm.data.iam.entity;
+package com.elastic.cspm.data.entity;
 
-import com.elastic.cspm.data.compliance_result.entity.ComplianceResult;
-import com.elastic.cspm.data.describe_result.entity.DescribeResult;
-import com.elastic.cspm.data.errorlog.entity.ErrorLog;
-import com.elastic.cspm.data.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
