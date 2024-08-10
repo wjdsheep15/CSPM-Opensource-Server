@@ -33,10 +33,11 @@ public class AccountService {
     private final MemberRepository memberRepository;
     private final IamRepository iamRepository;
     private final GroupRepository groupRepository;
+    private final EmailService emailService;
     private final AES256 aes256;
 
 
-    public InfoResponseDto getAwsAccountId(String accessKey, String secretKey, String region) {
+    public InfoResponseDto validationAwsAccountId(String accessKey, String secretKey, String region) {
 
         // 복호화
         String accessKeyDecrypt =  aes256.decrypt(accessKey);
@@ -72,26 +73,52 @@ public class AccountService {
 
 
     public boolean signup(SignupDto signupDto) {
-        Member member = new Member();
-        member.setEmail(signupDto.getEmail());
-        member.setPassword(signupDto.getPassword());
-        member.setRole("user");
-        member.setAccountId(signupDto.getAccountId());
-        member.setIamName(signupDto.getUserName());
-        memberRepository.save(member);
+        boolean memberResult = false ;
+        boolean iamResult = true ;
+        try {
+            Member member = new Member();
+            member.setEmail(signupDto.getEmail());
+            member.setPassword(signupDto.getPassword());
+            member.setRole("user");
+            member.setAccountId(signupDto.getAccountId());
+            member.setIamName(signupDto.getUserName());
+            memberRepository.save(member);
 
-        iamSave(signupDto.getEmail() ,signupDto.getAccessKey(), signupDto.getSecretKey(), signupDto.getRegion());
-        return true;
+            memberResult = true ;
+            iamResult = iamSave(signupDto.getEmail(), signupDto.getAccessKey(), signupDto.getSecretKey(), signupDto.getRegion());
+
+            if( memberResult && iamResult ) {
+                return true;
+            }else {
+                return false;
+            }
+        }catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
     }
 
+    public Boolean iamSave( String email ,String accessKey, String secretKey, String regin) {
 
-    public List<String> iamSave( String email ,String accessKey, String secretKey, String regin) {
-        List<String> accountList = new ArrayList<>();
-        IAM iam = new IAM();
-        iam.setAccessKey(accessKey);
-        iam.setSecretKey(secretKey);
-        iam.setRegion(regin);
-
-        return accountList;
+       try {
+           IAM iam = new IAM();
+           iam.setAccessKey(accessKey);
+           iam.setSecretKey(secretKey);
+           iam.setRegion(regin);
+           iam.setMember(memberRepository.findById(email).orElse(null));
+           iamRepository.save(iam);
+           return true;
+       }catch(Exception e) {
+           return false;
+       }
     }
+
+    public String validationEmail(String email) {
+        Member member = memberRepository.findById(email).orElse(null);
+        if(member == null) {
+            return emailService.sendEmailNotice(email);
+        }
+        return "false";
+    }
+
 }
