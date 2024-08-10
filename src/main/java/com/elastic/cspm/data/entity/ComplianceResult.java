@@ -30,10 +30,12 @@ public class ComplianceResult {
     @Column(name="resource_id", nullable = false)
     private String resourceId;
 
-    @OneToMany(mappedBy = "complianceResult", fetch = LAZY)
-    private List<IAM> iamList = new ArrayList<>();
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "iam_id")
+    private IAM iam;
 
-    @OneToMany(mappedBy = "complianceResult", fetch = LAZY)
-    private List<Policy> policyList = new ArrayList<>();
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "policyTitle")
+    private Policy policy;
 
 }

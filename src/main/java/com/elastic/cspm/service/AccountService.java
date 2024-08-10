@@ -80,12 +80,12 @@ public class AccountService {
         member.setIamName(signupDto.getUserName());
         memberRepository.save(member);
 
-        iamSave(signupDto.getAccessKey(), signupDto.getSecretKey(), signupDto.getRegion());
+        iamSave(signupDto.getEmail() ,signupDto.getAccessKey(), signupDto.getSecretKey(), signupDto.getRegion());
         return true;
     }
 
 
-    public List<String> iamSave(String accessKey, String secretKey, String regin) {
+    public List<String> iamSave( String email ,String accessKey, String secretKey, String regin) {
         List<String> accountList = new ArrayList<>();
         IAM iam = new IAM();
         iam.setAccessKey(accessKey);

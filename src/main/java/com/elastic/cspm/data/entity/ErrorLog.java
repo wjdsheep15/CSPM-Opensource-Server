@@ -24,6 +24,7 @@ public class ErrorLog {
     @Column(name="description", nullable = false)
     private String descriptiong;
 
-    @OneToMany(mappedBy = "errorLog", fetch = LAZY)
-    private List<IAM> iamList = new ArrayList<>();
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "iam_id")
+    private IAM iam;
 }

@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -44,13 +43,12 @@ public class Member implements UserDetails {
     @Column(name="account_id", nullable = false)
     private String accountId;
 
-    @ManyToOne
-    @JoinColumn(name = "resource_group_name")
-    private Group group;
+    @OneToMany(mappedBy = "member")
+    private List<Group> groups = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name="iam_id")
-    private IAM iam;
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<IAM> iams = new ArrayList<>();
+
 
     /**
      * Security를 위한 UserDetails 구현

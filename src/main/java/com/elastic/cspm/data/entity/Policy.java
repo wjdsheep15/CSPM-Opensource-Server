@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import static com.elastic.cspm.utils.Length.Lengths.SMALL;
-
+import java.util.List;
 
 @Entity
 @Getter
@@ -34,7 +34,6 @@ public class Policy {
     @Column(name = "compliance", nullable = false)
     private String compliance; // 취약점 정책
 
-    @ManyToOne
-    @JoinColumn(name = "compliance_id")
-    private ComplianceResult complianceResult;
+    @OneToMany(mappedBy = "policy")
+    private List<ComplianceResult> complianceResults;
 }

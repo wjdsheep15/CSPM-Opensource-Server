@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import static jakarta.persistence.FetchType.*;
 
@@ -29,6 +27,7 @@ public class DescribeResult {
     @Column(name = "scan_target", nullable = false)
     private String scanTarget;
 
-    @OneToMany(mappedBy = "describeResult", fetch = LAZY)
-    private List<IAM> iamList = new ArrayList<>();
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "iam_id")
+    private IAM iam;
 }
