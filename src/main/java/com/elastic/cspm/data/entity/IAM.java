@@ -22,7 +22,7 @@ public class IAM {
     @Column(name="access_key", nullable = false)
     private String accessKey;
 
-    @Column(name="scan_time", nullable = true)
+    @Column(name="secret_key", nullable = true)
     private String secretKey;
 
     @Column(name="region", nullable = false)

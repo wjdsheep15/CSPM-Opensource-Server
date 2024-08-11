@@ -30,13 +30,14 @@ public class AccountController {
         if (infoResponseDto == null) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500 Internal Server Error
         }
-
         if (infoResponseDto.getStatus() == 0) {
             return ResponseEntity.ok(infoResponseDto); // 200 OK
         } else if (infoResponseDto.getStatus() == 1) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 403 Forbidden 인증은 성공 권한 문제
-        }else {
+        }else if (infoResponseDto.getStatus() == 2){
             return ResponseEntity.status(HttpStatus.GONE).build(); // 410 Gone
+        }else {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build(); // 409 Conflict 중복
         }
     }
 
@@ -53,16 +54,43 @@ public class AccountController {
         if (email == null || email.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "이메일을 입력해주세요."));
         }
-
         String isValidEmail = accountService.validationEmail(email);
-        if (isValidEmail.length() == 6) {
-            Map<String, String> response = new HashMap<>();
-            response.put("verificationCode", isValidEmail); // JSON 키와 값 추가
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.GONE).body(Map.of("error", "이메일 인증 실패")); // 410
+        if (isValidEmail.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "이메일 중복")); // 409 중복
         }
+        Map<String, String> response = new HashMap<>();
+        response.put("verificationCode", isValidEmail); // JSON 키와 값 추가
+        return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/id/{accessKey}")
+    public ResponseEntity<Map<String, String>> searchId(@PathVariable String accessKey) {
+        Map<String, String> response = new HashMap<>();
+        if (accessKey == null || accessKey.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        String searchEmail = accountService.SearchEmail(accessKey);
+        if(searchEmail == null || searchEmail.isEmpty()){
+            response.put("error", "email not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); // 404
+        }
+        response.put("email", searchEmail);
+        return ResponseEntity.ok(response);
 
+    }
+
+    @GetMapping("/password/{email}")
+    public ResponseEntity<Map<String, String>> searchPassword(@PathVariable String email) {
+        Map<String, String> response = new HashMap<>();
+        if (email == null || email.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        String password =  accountService.SearchPassword(email);
+        if(password == null || password.isEmpty()){
+            response.put("error", "password not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); // 404
+        }
+        response.put("password", password);
+        return ResponseEntity.ok(response);
+    }
 }

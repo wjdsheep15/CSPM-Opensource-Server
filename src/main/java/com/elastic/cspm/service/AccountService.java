@@ -25,6 +25,7 @@ import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,11 +40,18 @@ public class AccountService {
 
     public InfoResponseDto validationAwsAccountId(String accessKey, String secretKey, String region) {
 
+        InfoResponseDto infoResponseDto = new InfoResponseDto();
+
+        if(iamRepository.findAllByAccessKey(accessKey).isPresent()){
+            infoResponseDto.setStatus(3);
+            return infoResponseDto;
+        }
+
         // 복호화
         String accessKeyDecrypt =  aes256.decrypt(accessKey);
         String secretKeyDecrypt =  aes256.decrypt(secretKey);
         String regionDecrypt = aes256.decrypt(region);
-        InfoResponseDto infoResponseDto = new InfoResponseDto();
+
 
         // AWS 자격증 생성
         AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKeyDecrypt, secretKeyDecrypt);
@@ -118,7 +126,19 @@ public class AccountService {
         if(member == null) {
             return emailService.sendEmailNotice(email);
         }
-        return "false";
+        return null;
     }
 
+    public String SearchEmail(String accessKey) {
+       return iamRepository.findEmailByAccessKey(accessKey).map(IAM::getMember).get().getEmail();
+    }
+
+    public String SearchPassword(String email){
+        System.out.println(email);
+        Member member =  memberRepository.findByEmail(email).orElse(null);
+        if(member == null) {
+            return null;
+        }
+        return aes256.decrypt(member.getPassword());
+    }
 }
