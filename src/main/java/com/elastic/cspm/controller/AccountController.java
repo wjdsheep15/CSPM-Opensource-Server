@@ -55,7 +55,7 @@ public class AccountController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "이메일을 입력해주세요."));
         }
         String isValidEmail = accountService.validationEmail(email);
-        if (isValidEmail.isEmpty()) {
+        if (isValidEmail==null) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "이메일 중복")); // 409 중복
         }
         Map<String, String> response = new HashMap<>();
