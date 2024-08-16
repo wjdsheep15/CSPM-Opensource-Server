@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -19,6 +20,13 @@ public class AccountController {
 
     private final AccountService accountService;
 
+    /**
+     * IAM 검증 EndPoint
+     * @param accessKey
+     * @param secretKey
+     * @param region
+     * @return
+     */
     @GetMapping("/validation/iam")
     public ResponseEntity<InfoResponseDto> validationIam(@RequestParam String accessKey, @RequestParam String secretKey, @RequestParam String region) {
         if (accessKey == null || secretKey == null || region == null) {
@@ -41,6 +49,11 @@ public class AccountController {
         }
     }
 
+    /**
+     * 회원가입 EndPoint
+     * @param signupDto
+     * @return
+     */
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@Valid @RequestBody SignupDto signupDto) {
         boolean isSignupSuccessful = accountService.signup(signupDto);
@@ -49,6 +62,11 @@ public class AccountController {
                 : ResponseEntity.badRequest().body("회원가입 실패");
     }
 
+    /**
+     * Email 검증 EndPoint
+     * @param email
+     * @return
+     */
     @GetMapping("/validation/email")
     public ResponseEntity<Map<String, String>> validationEmail(@RequestParam String email) {
         if (email == null || email.isEmpty()) {
@@ -63,6 +81,11 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Id 찾기 EndPoint
+     * @param accessKey
+     * @return
+     */
     @GetMapping("/id/{accessKey}")
     public ResponseEntity<Map<String, String>> searchId(@PathVariable String accessKey) {
         Map<String, String> response = new HashMap<>();
@@ -79,6 +102,11 @@ public class AccountController {
 
     }
 
+    /**
+     * password 찾기 EndPoint
+     * @param email
+     * @return
+     */
     @GetMapping("/password/{email}")
     public ResponseEntity<Map<String, String>> searchPassword(@PathVariable String email) {
         Map<String, String> response = new HashMap<>();
@@ -93,4 +121,6 @@ public class AccountController {
         response.put("password", password);
         return ResponseEntity.ok(response);
     }
+
+
 }

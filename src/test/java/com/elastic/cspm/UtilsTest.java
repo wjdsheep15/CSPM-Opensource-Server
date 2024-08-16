@@ -15,7 +15,7 @@ public class UtilsTest {
     @Test
     void testAES256(){
 
-        String str = "testCode123456";
+        String str = "1111";
         // 암호화
         String encrypted = utilAES256.encrypt(str);
         System.out.println("암호화 값 : " + encrypted);
@@ -31,7 +31,8 @@ public class UtilsTest {
         }
     }
 
-    @Value(value = "${java.file.test}")
+
+    @Value(value = "${DEV_DB_PASSWORD}")
     private String envValue;
 
     @Test

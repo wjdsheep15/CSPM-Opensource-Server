@@ -9,6 +9,7 @@ import com.elastic.cspm.data.repository.IamRepository;
 import com.elastic.cspm.data.repository.MemberRepository;
 import com.elastic.cspm.utils.AES256;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -22,11 +23,6 @@ import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.GetCallerIdentityRequest;
 import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class AccountService {
@@ -36,6 +32,7 @@ public class AccountService {
     private final GroupRepository groupRepository;
     private final EmailService emailService;
     private final AES256 aes256;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
 
     public InfoResponseDto validationAwsAccountId(String accessKey, String secretKey, String region) {
@@ -83,11 +80,13 @@ public class AccountService {
     public boolean signup(SignupDto signupDto) {
         boolean memberResult = false ;
         boolean iamResult = true ;
+        String password = aes256.decrypt(signupDto.getPassword());
+
         try {
             Member member = new Member();
             member.setEmail(signupDto.getEmail());
-            member.setPassword(signupDto.getPassword());
-            member.setRole("user");
+            member.setPassword(bCryptPasswordEncoder.encode(password));
+            member.setRole("ROLE_USER");
             member.setAccountId(signupDto.getAccountId());
             member.setIamName(signupDto.getUserName());
             memberRepository.save(member);
