@@ -1,5 +1,6 @@
 package com.elastic.cspm.config;
 
+import com.elastic.cspm.jwt.JWTFilter;
 import com.elastic.cspm.jwt.JWTUtil;
 import com.elastic.cspm.jwt.LoginFilter;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +54,9 @@ public class SecurityConfig {
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 );
+
+        http
+                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
 
         http
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
