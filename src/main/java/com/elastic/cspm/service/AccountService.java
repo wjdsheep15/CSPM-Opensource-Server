@@ -121,11 +121,12 @@ public class AccountService {
     }
 
     public String validationEmail(String email) {
-        Member member = memberRepository.findById(email).orElse(null);
-        if(member == null) {
-            return emailService.sendEmailNotice(email);
+        boolean member = memberRepository.existsById(email);
+        if(member) {
+            return "exit";
         }
-        return null;
+        return emailService.sendEmailNotice(email);
+
     }
 
     public String SearchEmail(String accessKey) {

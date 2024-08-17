@@ -120,6 +120,4 @@ public class AccountController {
         response.put("password", password);
         return ResponseEntity.ok(response);
     }
-
-
 }

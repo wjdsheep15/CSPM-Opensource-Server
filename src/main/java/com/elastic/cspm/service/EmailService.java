@@ -30,7 +30,7 @@ public class EmailService {
         try {
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
             mimeMessageHelper.setTo(email); // 메일 수신자
-            mimeMessageHelper.setSubject("이메일 인증"); // 메일 제목
+            mimeMessageHelper.setSubject("OScspm 이메일 인증"); // 메일 제목
             // 무작위 숫자 6개 생성
             String verificationCode = generateRandomCode(6);
             mimeMessageHelper.setText("<h1>인증 코드: " + verificationCode + "</h1>", true); // HTML 여부 설정
