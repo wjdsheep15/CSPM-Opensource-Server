@@ -27,7 +27,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         //클라이언트 요청에서 username, password 추출
         String username = obtainUsername(req);
         String password = obtainPassword(req);
-        System.out.println(username);
         //스프링 시큐리티에서 username과 password를 검증하기 위해서는 token에 담아야 함
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password, null);
 
@@ -39,17 +38,19 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-
         String username = customUserDetails.getUsername();
+
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
 
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(username, role, 86400000L);
+        String token = jwtUtil.createJwt(username, role, 1800000L); // 5분 : 300000L 10분 : 600000L, 30분 : 1800000L
+        String refreshToken = jwtUtil.createRefreshToken(username, role,86400000L); // 하루
 
         response.addHeader("Authorization", "Bearer " + token);
+        response.addHeader("Refresh-Token", refreshToken);
     }
 
     //로그인 실패시 실행하는 메소드
