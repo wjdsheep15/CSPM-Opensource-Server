@@ -75,9 +75,7 @@ public class AccountController {
         if (isValidEmail==null) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "이메일 중복")); // 409 중복
         }
-        Map<String, String> response = new HashMap<>();
-        response.put("verificationCode", isValidEmail); // JSON 키와 값 추가
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("verificationCode", isValidEmail));
     }
 
     /**
@@ -87,17 +85,14 @@ public class AccountController {
      */
     @GetMapping("/id/{accessKey}")
     public ResponseEntity<Map<String, String>> searchId(@PathVariable String accessKey) {
-        Map<String, String> response = new HashMap<>();
         if (accessKey == null || accessKey.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
         String searchEmail = accountService.SearchEmail(accessKey);
         if(searchEmail == null || searchEmail.isEmpty()){
-            response.put("error", "email not found");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); // 404
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "email not found")); // 404
         }
-        response.put("email", searchEmail);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("email", searchEmail));
 
     }
 
@@ -106,18 +101,15 @@ public class AccountController {
      * @param email
      * @return
      */
-    @GetMapping("/password/{email}")
-    public ResponseEntity<Map<String, String>> searchPassword(@PathVariable String email) {
-        Map<String, String> response = new HashMap<>();
+    @PutMapping("/password/{email}/{password}")
+    public ResponseEntity<Map<String, String>> searchPassword(@PathVariable String email, @PathVariable String password) {
         if (email == null || email.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
-        String password =  accountService.SearchPassword(email);
-        if(password == null || password.isEmpty()){
-            response.put("error", "password not found");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); // 404
+        boolean result =  accountService.upDatePassword(email, password);
+        if(!result){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("result", "email not found")); // 404
         }
-        response.put("password", password);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of("result", "Success"));
     }
 }

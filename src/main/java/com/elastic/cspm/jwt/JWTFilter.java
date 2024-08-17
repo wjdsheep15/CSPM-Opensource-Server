@@ -39,7 +39,6 @@ public class JWTFilter extends OncePerRequestFilter {
         //Bearer 부분 제거 후 순수 토큰만 획득
         String token = authorization.split(" ")[1];
 
-        System.out.println(token);
         // 토큰 소멸 시간 검증
         System.out.println(jwtUtil.isExpired(token));
         if (jwtUtil.isExpired(token)) {
@@ -54,7 +53,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 token = newAccessToken;
                 response.setHeader("Authorization", "Bearer " + newAccessToken);
                 response.setHeader("Refresh-Token", refreshToken);
-                System.out.println("New access token issued");
+                System.out.println("New access token issued : " + username);
             }else{
                 // 리프레시 토큰이 없거나 만료된 경우, 401 Unauthorized 응답 반환
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

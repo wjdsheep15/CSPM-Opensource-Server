@@ -133,12 +133,13 @@ public class AccountService {
        return iamRepository.findEmailByAccessKey(accessKey).map(IAM::getMember).get().getEmail();
     }
 
-    public String SearchPassword(String email){
-        System.out.println(email);
+    public Boolean upDatePassword(String email, String password){
         Member member =  memberRepository.findByEmail(email).orElse(null);
         if(member == null) {
-            return null;
+            return false;
         }
-        return aes256.decrypt(member.getPassword());
+        member.setPassword(bCryptPasswordEncoder.encode(password));
+        memberRepository.save(member);
+        return true;
     }
 }
