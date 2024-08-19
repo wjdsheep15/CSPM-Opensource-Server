@@ -50,7 +50,6 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private List<ScanGroup> groups = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = {CascadeType.ALL, CascadeType.REMOVE})
     private List<IAM> iams = new ArrayList<>();
-
 }

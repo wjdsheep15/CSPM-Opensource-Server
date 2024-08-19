@@ -29,7 +29,6 @@ spring:
       mail.starttls.enable: true
       mail.smtp.auth: true
 
-
 springdoc:
   swagger-ui:
     operations-sorter: alpha(알파멧 오름차순), method(HTTP메소드순)

@@ -22,11 +22,14 @@ public class IAM {
     @Column(name="access_key", nullable = false)
     private String accessKey;
 
-    @Column(name="secret_key", nullable = true)
+    @Column(name="secret_key", nullable = false)
     private String secretKey;
 
     @Column(name="region", nullable = false)
     private String region;
+
+    @Column(name = "nick_name", nullable = true)
+    private String nickName;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name="email")
