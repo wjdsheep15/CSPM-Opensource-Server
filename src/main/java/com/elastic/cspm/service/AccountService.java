@@ -112,6 +112,7 @@ public class AccountService {
            iam.setAccessKey(accessKey);
            iam.setSecretKey(secretKey);
            iam.setRegion(regin);
+           iam.setNickName("default");
            iam.setMember(memberRepository.findById(email).orElse(null));
            iamRepository.save(iam);
            return true;
