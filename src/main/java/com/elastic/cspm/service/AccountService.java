@@ -4,9 +4,9 @@ import com.elastic.cspm.data.dto.InfoResponseDto;
 import com.elastic.cspm.data.dto.SignupDto;
 import com.elastic.cspm.data.entity.IAM;
 import com.elastic.cspm.data.entity.Member;
-import com.elastic.cspm.data.repository.GroupRepository;
-import com.elastic.cspm.data.repository.IamRepository;
-import com.elastic.cspm.data.repository.MemberRepository;
+import com.elastic.cspm.repository.GroupRepository;
+import com.elastic.cspm.repository.IamRepository;
+import com.elastic.cspm.repository.MemberRepository;
 import com.elastic.cspm.utils.AES256;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,11 +21,6 @@ import software.amazon.awssdk.services.iam.model.GetUserResponse;
 import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.GetCallerIdentityRequest;
 import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
-
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

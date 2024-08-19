@@ -1,7 +1,9 @@
 package com.elastic.cspm.data.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -25,7 +27,7 @@ public class DescribeResult {
     private String resourceId;
 
     @Column(name = "scan_target", nullable = false)
-    private String scanTarget;
+    private String scanTarget; // resource로 스캔 대상
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "iam_id")

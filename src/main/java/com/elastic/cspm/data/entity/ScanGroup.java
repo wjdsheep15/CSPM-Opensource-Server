@@ -51,5 +51,4 @@ public class ScanGroup {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "email")
     private Member member;
-
 }

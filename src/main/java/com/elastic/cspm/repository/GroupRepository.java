@@ -1,4 +1,4 @@
-package com.elastic.cspm.data.repository;
+package com.elastic.cspm.repository;
 
 import com.elastic.cspm.data.entity.ScanGroup;
 import org.springframework.data.jpa.repository.JpaRepository;
