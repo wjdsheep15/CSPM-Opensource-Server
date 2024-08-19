@@ -12,7 +12,7 @@ import java.util.List;
 public class ResourceResultDto {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public record ResourceListDto (
-            List<ResourceRecordDto> tickets,
+            List<ResourceRecordDto> resources,
             int total,
             int totalPage
     ) {}

@@ -1,15 +1,13 @@
-package com.elastic.cspm.repository.impl;
+package com.elastic.cspm.data.repository.impl;
 
 import com.elastic.cspm.data.dto.QResourceDto;
 import com.elastic.cspm.data.dto.ResourceFilterDto;
-import com.elastic.cspm.repository.ResourceRepositoryCustom;
+import com.elastic.cspm.data.repository.ResourceRepositoryCustom;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;

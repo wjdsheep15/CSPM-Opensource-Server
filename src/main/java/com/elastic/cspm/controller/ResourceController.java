@@ -27,5 +27,4 @@ public class ResourceController {
         ResourceListDto allResources = resourceService.getAllResources(resourceFilterDto);
         return ResponseEntity.ok(allResources);
     }
-
 }

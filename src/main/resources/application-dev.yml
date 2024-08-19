@@ -29,8 +29,6 @@ spring:
       mail.starttls.enable: true
       mail.smtp.auth: true
 
-  jwt:
-    secret: vmfhaltmskdlstkfkdgodyroqkfwkdbalroqkfwkdbalaaaaaaaaaaaaaaaabbbbb
 
 springdoc:
   swagger-ui:
@@ -40,3 +38,7 @@ springdoc:
     disable-swagger-default-url: true
     display-query-params-without-oauth2: true
 
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2

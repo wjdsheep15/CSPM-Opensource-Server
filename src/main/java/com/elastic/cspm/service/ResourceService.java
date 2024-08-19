@@ -1,7 +1,7 @@
 package com.elastic.cspm.service;
 
 import com.elastic.cspm.data.dto.ResourceFilterDto;
-import com.elastic.cspm.repository.ResourceRepository;
+import com.elastic.cspm.data.repository.ResourceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;

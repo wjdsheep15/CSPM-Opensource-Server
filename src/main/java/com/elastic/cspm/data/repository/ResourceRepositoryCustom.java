@@ -1,4 +1,4 @@
-package com.elastic.cspm.repository;
+package com.elastic.cspm.data.repository;
 
 import com.elastic.cspm.data.dto.QResourceDto;
 import com.elastic.cspm.data.dto.ResourceFilterDto;

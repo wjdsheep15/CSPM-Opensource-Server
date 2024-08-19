@@ -4,9 +4,9 @@ import com.elastic.cspm.data.dto.InfoResponseDto;
 import com.elastic.cspm.data.dto.SignupDto;
 import com.elastic.cspm.data.entity.IAM;
 import com.elastic.cspm.data.entity.Member;
-import com.elastic.cspm.repository.GroupRepository;
-import com.elastic.cspm.repository.IamRepository;
-import com.elastic.cspm.repository.MemberRepository;
+import com.elastic.cspm.data.repository.GroupRepository;
+import com.elastic.cspm.data.repository.IamRepository;
+import com.elastic.cspm.data.repository.MemberRepository;
 import com.elastic.cspm.utils.AES256;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -125,6 +125,7 @@ public class AccountService {
         if(member) {
             return "exit";
         }
+        System.out.println("send");
         return emailService.sendEmailNotice(email);
 
     }
