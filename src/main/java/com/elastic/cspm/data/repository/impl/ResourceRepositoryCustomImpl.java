@@ -1,7 +1,7 @@
 package com.elastic.cspm.data.repository.impl;
 
 import com.elastic.cspm.data.dto.QResourceDto;
-import com.elastic.cspm.data.dto.ResourceFilterDto;
+import com.elastic.cspm.data.dto.ResourceFilterRequestDto;
 import com.elastic.cspm.data.repository.ResourceRepositoryCustom;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -38,16 +38,16 @@ public class ResourceRepositoryCustomImpl implements ResourceRepositoryCustom {
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<QResourceDto> findResourceList(Pageable pageable, ResourceFilterDto resourceFilterDto) {
-        log.info("Searching resources - IAM : {}, ScanGroup : {}, Resource : {}, Service : {}",
-                resourceFilterDto.getIAM(), resourceFilterDto.getScanGroup(),
-                resourceFilterDto.getResource(), resourceFilterDto.getService());
+    public Page<QResourceDto> findResourceList(Pageable pageable, ResourceFilterRequestDto resourceFilterDto) {
+        // 필터링 요청 보낸 로그
+        log.info("Searching resources - IAM : {}, ScanGroup : {}",
+                resourceFilterDto.getIAM(), resourceFilterDto.getScanGroup());
 
+        // 필터링 쿼리 + 페이징
         List<QResourceDto> content = createResourceDtoQuery()
                 .where(
                         iAMEq(resourceFilterDto.getIAM()),
-                        scanGroupEq(resourceFilterDto.getScanGroup()),
-                        resourceEq(resourceFilterDto.getResource())
+                        scanGroupEq(resourceFilterDto.getScanGroup())
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -57,8 +57,8 @@ public class ResourceRepositoryCustomImpl implements ResourceRepositoryCustom {
         log.info("Found {} tickets matching the search criteria.", content.size() );
         log.info("Page Size : {}  and PageOffset : {}.", pageable.getPageSize(), pageable.getPageNumber());
 
-//        return new PageImpl<>(content, pageable, content.size());
-        return new PageImpl<>(content);
+        return new PageImpl<>(content, pageable, content.size());
+//        return new PageImpl<>(content);
     }
 
 

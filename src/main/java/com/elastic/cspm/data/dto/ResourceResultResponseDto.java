@@ -8,8 +8,9 @@ import java.util.List;
 
 /**
  * 보여줄 모든 리소스 리스트 조회
+ * 스캔 시간, accountId, resource, resourceId, service
  */
-public class ResourceResultDto {
+public class ResourceResultResponseDto {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public record ResourceListDto (
             List<ResourceRecordDto> resources,
@@ -31,7 +32,7 @@ public class ResourceResultDto {
                     .scanTime(formattedScanTime)
                     .accountId(qResourceDto.getAccountId())
                     .resource(qResourceDto.getResource())
-                    .accountId(qResourceDto.getResourceId())
+                    .resourceId(qResourceDto.getResourceId())
                     .service(qResourceDto.getService())
                     .build();
         }
