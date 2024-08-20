@@ -1,6 +1,11 @@
 spring:
   application:
     name: OScspm
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2
+        auto: false
 
   datasource:
     url: jdbc:mysql://localhost:3306/OScspm
@@ -36,8 +41,3 @@ springdoc:
     path: /swagger-ui.html
     disable-swagger-default-url: true
     display-query-params-without-oauth2: true
-
-  cloud:
-    aws:
-      region:
-        static: ap-northeast-2

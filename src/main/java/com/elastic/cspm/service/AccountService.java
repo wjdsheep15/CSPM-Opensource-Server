@@ -107,17 +107,18 @@ public class AccountService {
 
     public Boolean iamSave( String email ,String accessKey, String secretKey, String regin) {
 
-       try {
-           IAM iam = new IAM();
-           iam.setAccessKey(accessKey);
-           iam.setSecretKey(secretKey);
-           iam.setRegion(regin);
-           iam.setMember(memberRepository.findById(email).orElse(null));
-           iamRepository.save(iam);
-           return true;
-       }catch(Exception e) {
-           return false;
-       }
+        try {
+            IAM iam = new IAM();
+            iam.setAccessKey(accessKey);
+            iam.setSecretKey(secretKey);
+            iam.setRegion(regin);
+            iam.setNickName("default");
+            iam.setMember(memberRepository.findById(email).orElse(null));
+            iamRepository.save(iam);
+            return true;
+        }catch(Exception e) {
+            return false;
+        }
     }
 
     public String validationEmail(String email) {
@@ -125,13 +126,12 @@ public class AccountService {
         if(member) {
             return "exit";
         }
-        System.out.println("send");
         return emailService.sendEmailNotice(email);
 
     }
 
     public String SearchEmail(String accessKey) {
-       return iamRepository.findEmailByAccessKey(accessKey).map(IAM::getMember).get().getEmail();
+        return iamRepository.findEmailByAccessKey(accessKey).map(IAM::getMember).get().getEmail();
     }
 
     public Boolean upDatePassword(String email, String password){
