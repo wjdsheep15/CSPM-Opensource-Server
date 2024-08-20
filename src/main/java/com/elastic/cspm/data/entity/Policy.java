@@ -16,7 +16,7 @@ public class Policy {
     @Column(name = "policy_title", length = SMALL)
     private String policyTitle;
 
-    @Column(name = "pattern", nullable = false)
+    @Column(name = "pattern", nullable = false, columnDefinition = "TEXT")
     private String pattern;
 
     @Column(name = "category", nullable = false)
