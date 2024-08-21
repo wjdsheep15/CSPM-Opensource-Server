@@ -1,5 +1,6 @@
 package com.elastic.cspm.config;
 
+import com.elastic.cspm.data.repository.MemberRepository;
 import com.elastic.cspm.data.repository.RefreshRepository;
 import com.elastic.cspm.jwt.CustomLogoutFilter;
 import com.elastic.cspm.jwt.JWTFilter;
@@ -35,6 +36,7 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
+    private final MemberRepository memberRepository;
 
     //AuthenticationManager Bean 등록
     @Bean
@@ -92,7 +94,7 @@ public class SecurityConfig {
                 .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
 
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository, memberRepository), UsernamePasswordAuthenticationFilter.class);
 
         http
                 .addFilterBefore(new CustomLogoutFilter(refreshRepository, jwtUtil), LogoutFilter.class);

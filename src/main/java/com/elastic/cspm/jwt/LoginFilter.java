@@ -2,6 +2,7 @@ package com.elastic.cspm.jwt;
 
 import com.elastic.cspm.data.dto.LoginRequestDto;
 import com.elastic.cspm.data.entity.RefreshEntity;
+import com.elastic.cspm.data.repository.MemberRepository;
 import com.elastic.cspm.data.repository.RefreshRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -22,6 +23,8 @@ import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -33,6 +36,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) throws AuthenticationException {
@@ -107,11 +111,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private void addRefreshEntity(String username, String refresh, Long expiredMs) {
 
         Date date = new Date(System.currentTimeMillis() + expiredMs);
+        LocalDateTime expirationDateTime =  LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
 
         RefreshEntity refreshEntity = new RefreshEntity();
-        refreshEntity.setUsername(username);
+        refreshEntity.setMember(memberRepository.findByEmail(username).orElseThrow());
         refreshEntity.setRefresh(refresh);
-        refreshEntity.setExpiration(date.toString());
+        refreshEntity.setExpiration(expirationDateTime);
 
         refreshRepository.save(refreshEntity);
     }
