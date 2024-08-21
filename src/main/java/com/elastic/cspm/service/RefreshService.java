@@ -1,6 +1,7 @@
 package com.elastic.cspm.service;
 
 import com.elastic.cspm.data.entity.RefreshEntity;
+import com.elastic.cspm.data.repository.MemberRepository;
 import com.elastic.cspm.data.repository.RefreshRepository;
 import com.elastic.cspm.jwt.JWTUtil;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -13,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 @Service
@@ -22,6 +25,7 @@ public class RefreshService {
 
     private final RefreshRepository refreshRepository;
     private final JWTUtil jwtUtil;
+    private final MemberRepository memberRepository;
 
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
 
@@ -105,11 +109,12 @@ public class RefreshService {
     private void addRefreshEntity(String username, String refresh, Long expiredMs) {
 
         Date date = new Date(System.currentTimeMillis() + expiredMs);
+        LocalDateTime expirationDateTime =  LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
 
         RefreshEntity refreshEntity = new RefreshEntity();
-        refreshEntity.setUsername(username);
+        refreshEntity.setMember(memberRepository.findByEmail(username).orElseThrow());
         refreshEntity.setRefresh(refresh);
-        refreshEntity.setExpiration(date.toString());
+        refreshEntity.setExpiration(expirationDateTime);
 
         refreshRepository.save(refreshEntity);
     }
