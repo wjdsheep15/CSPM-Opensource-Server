@@ -52,4 +52,7 @@ public class Member {
 
     @OneToMany(mappedBy = "member", cascade = {CascadeType.ALL, CascadeType.REMOVE})
     private List<IAM> iams = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = {CascadeType.ALL, CascadeType.REMOVE})
+    private List<RefreshEntity> refreshEntities = new ArrayList<>();
 }
