@@ -1,5 +1,7 @@
 package com.elastic.cspm.config;
 
+import com.elastic.cspm.data.repository.RefreshRepository;
+import com.elastic.cspm.jwt.CustomLogoutFilter;
 import com.elastic.cspm.jwt.JWTFilter;
 import com.elastic.cspm.jwt.JWTUtil;
 import com.elastic.cspm.jwt.LoginFilter;
@@ -11,11 +13,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -30,6 +34,7 @@ public class SecurityConfig {
     //AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
 
     //AuthenticationManager Bean 등록
     @Bean
@@ -43,7 +48,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
                 .cors((cors -> cors.configurationSource(new CorsConfigurationSource() {
@@ -59,7 +64,7 @@ public class SecurityConfig {
                         configuration.setMaxAge(3600L);
 
                         // 헤더 cors에 허용
-                        configuration.setExposedHeaders(Arrays.asList("Authorization", "Refresh-Token"));
+                        configuration.setExposedHeaders(Arrays.asList("access", "Set-Cookie"));
                         return configuration;
                     }
                 })) );
@@ -75,7 +80,10 @@ public class SecurityConfig {
                 // 경로별 인가 작업
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/api/account/**", "/login").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
+                        .requestMatchers("/api/account/**").permitAll()
+                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/reissue").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 );
@@ -84,7 +92,10 @@ public class SecurityConfig {
                 .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
 
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
+
+        http
+                .addFilterBefore(new CustomLogoutFilter(refreshRepository, jwtUtil), LogoutFilter.class);
         http
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
