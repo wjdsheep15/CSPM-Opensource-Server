@@ -10,6 +10,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,8 +25,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Map;
 
+@Slf4j
 @RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -55,7 +56,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         //스프링 시큐리티에서 username과 password를 검증하기 위해서는 token에 담아야 함
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password, null);
-
         //token에 담은 검증을 위한 AuthenticationManager로 전달
         return authenticationManager.authenticate(authRequest);
     }
@@ -79,6 +79,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         //Refresh 토큰 저장
         addRefreshEntity(username, refresh, 86400000L);
+        log.info("로그인 성공 : " + username );
         //응답 설정
         response.setHeader("access", access);
         response.addCookie(createCookie("refresh", refresh));
@@ -88,7 +89,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     //로그인 실패시 실행하는 메소드
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
-            response.setStatus(401); // 기본적으로 인증 실패 시 401 반
+        System.out.println("로그인 안됨");
+        response.setStatus(401); // 기본적으로 인증 실패 시 401 반
     }
 
     private Cookie createCookie(String key, String value) {
@@ -96,7 +98,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         Cookie cookie = new Cookie(key, value);
         cookie.setMaxAge(24*60*60);
         //cookie.setSecure(true);
-        //cookie.setPath("/");
+        cookie.setPath("/");
         cookie.setHttpOnly(true);
 
         return cookie;
