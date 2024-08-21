@@ -34,10 +34,10 @@ public class ResourceController {
     /**
      * 스캔 시작 API
      */
-    /*@PostMapping
+    @PostMapping
     public ResponseEntity<Void> saveDescribe(@RequestBody List<DescribeIamDto> describeIamList) throws Exception {
         return resourceService.startDescribe(describeIamList);
-    }*/
+    }
 
     /**
      * 스캔 시작 후 resource와 service 필터
