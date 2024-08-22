@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.ec2.Ec2Client;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,6 @@ public class ResourceService {
     private final ResourceRepository resourceRepository;
     private final IamRepository iamRepository;
     private final AES256 aes256Util;
-    private final GroupHandler groupHandler;
 
     // IAM과 Group으로 스캔시간, AccountId, 리소스, 리소스ID, 서비스 조회
     public ResourceListDto getAllResources(ResourceFilterRequestDto resourceFilterDto) throws Exception {
@@ -78,7 +78,7 @@ public class ResourceService {
             List<DescribeResult> describeEntityList = new ArrayList<>();
 
             // 스캔 시작
-            DescribeResult result = groupHandler.groupDescribe(describeIamDto); // 자원 스캔 메소드 예시
+
             describeEntityList.add(result);
 
             describeEntityList.forEach(describeEntity -> {
@@ -101,17 +101,12 @@ public class ResourceService {
         return !isAllSuccessList.contains(false) ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-
-    private CredentialInfo createCredentials(Region region, String accessKey, String secretKey) {
-        return new CredentialInfo(AwsBasicCredentials.create(accessKey, secretKey), region);
-    }
-
     /**
      * 스캔하는 로직
      * 스캔 목적 : EC2Client로 data.sql에서 찾는 방법.
      *
      */
     private void groupDescribe() {
-
+        Ec2Client client = creden
     }
 }
