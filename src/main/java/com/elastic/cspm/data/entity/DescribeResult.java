@@ -35,12 +35,4 @@ public class DescribeResult {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "iam_id")
     private IAM iam;
-
-    // 명확하지 않음
-    public void setIamNickName(String nickName) {
-        if (this.iam == null) {
-            this.iam = new IAM(); // IAM 객체가 없으면 새로 생성
-        }
-        this.iam.setNickName(nickName);
-    }
 }

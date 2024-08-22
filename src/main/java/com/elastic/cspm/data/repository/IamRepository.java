@@ -12,4 +12,6 @@ public interface IamRepository extends JpaRepository<IAM, Long> {
     Optional<IAM> findAllByAccessKey(String accessKey);
 
     IAM findIAMByNickName(String nickName);
+
+//    Optional<IAM> findByIdAndMember_Email(Long iamId, String email);
 }

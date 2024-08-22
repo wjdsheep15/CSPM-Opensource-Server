@@ -11,15 +11,15 @@ import java.util.List;
 @Setter
 @Builder
 public class ResourceResultData {
-    String iamNickName;
-    String scanGroup;
+//    String iamNickName;
+//    String scanGroup;
     Boolean isAllSuccess;
     List<DescribeResult> describeEntityList;
 
-    public static ResourceResultData of(String iamNickName, String scanGroup, Boolean isSuccess, List<DescribeResult> describeEntityList) {
+    public static ResourceResultData of(Boolean isSuccess, List<DescribeResult> describeEntityList) {
         return ResourceResultData.builder()
-                .iamNickName(iamNickName)
-                .scanGroup(scanGroup)
+//                .iamNickName(iamNickName)
+//                .scanGroup(scanGroup)
                 .isAllSuccess(isSuccess)
                 .describeEntityList(describeEntityList)
                 .build();
