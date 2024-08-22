@@ -1,14 +1,12 @@
 package com.elastic.cspm.data.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-import static jakarta.persistence.FetchType.*;
+import static jakarta.persistence.FetchType.LAZY;
 
 @Entity
 @Getter
@@ -20,7 +18,7 @@ public class DescribeResult {
     @Column(name = "describe_id")
     private Long id;
 
-    @Column(name = "scan_time", nullable = false)
+    @Column(name = "scan_time", nullable = true)
     private LocalDateTime scanTime;
 
     @Column(name = "resource_id", nullable = false)

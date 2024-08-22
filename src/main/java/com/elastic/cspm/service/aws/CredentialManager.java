@@ -1,6 +1,5 @@
 package com.elastic.cspm.service.aws;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -11,7 +10,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 @Component
 @RequiredArgsConstructor
 public class CredentialManager {
-    private final CredentialInfo credentialsInfo;
+    private CredentialInfo credentialsInfo;
 
     /**
      * task : Credentials 생성

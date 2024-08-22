@@ -41,12 +41,12 @@ public class ResourceRepositoryCustomImpl implements ResourceRepositoryCustom {
     public Page<QResourceDto> findResourceList(Pageable pageable, ResourceFilterRequestDto resourceFilterDto) {
         // 필터링 요청 보낸 로그
         log.info("Searching resources - IAM : {}, ScanGroup : {}",
-                resourceFilterDto.getIAM(), resourceFilterDto.getScanGroup());
+                resourceFilterDto.getIam(), resourceFilterDto.getScanGroup());
 
         // 필터링 쿼리 + 페이징
         List<QResourceDto> content = createResourceDtoQuery()
                 .where(
-                        iAMEq(resourceFilterDto.getIAM()),
+                        iAMEq(resourceFilterDto.getIam()),
                         scanGroupEq(resourceFilterDto.getScanGroup())
                 )
                 .offset(pageable.getOffset())
@@ -73,18 +73,6 @@ public class ResourceRepositoryCustomImpl implements ResourceRepositoryCustom {
             return scanGroup.resourceGroupName.eq(group);
         } else return null;
     }
-    private BooleanExpression resourceEq(String resource) {
-        if(hasText(resource)){
-            return describeResult.scanTarget.eq(resource);
-        } else return null;
-    }
-
-    // 서비스는 데이터 전달을 위한 것이 아닌 프론트에서 편히 보기 위한 것으로 판단해서 일단 제외.
-//    private BooleanExpression serviceEq(String service) {
-//        if(hasText(service)){
-//            return describeResult.
-//        } else return null;
-//    }
 
     /**
      * projection qResourceDto 조회

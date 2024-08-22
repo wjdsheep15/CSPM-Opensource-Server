@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ResourceFilterRequestDto {
-    private String IAM;
+    private String iam;
     private String scanGroup;
     int pIndex;
     int pSize;

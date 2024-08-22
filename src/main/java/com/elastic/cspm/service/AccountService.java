@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
@@ -31,7 +32,6 @@ public class AccountService {
 
     private final MemberRepository memberRepository;
     private final IamRepository iamRepository;
-    private final GroupRepository groupRepository;
     private final EmailService emailService;
     private final AES256 aes256;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -86,7 +86,7 @@ public class AccountService {
         }
     }
 
-
+    @Transactional
     public boolean signup(SignupDto signupDto) {
         boolean memberResult = false ;
         boolean iamResult = true ;
@@ -137,7 +137,6 @@ public class AccountService {
             return "exit";
         }
         return emailService.sendEmailNotice(email);
-
     }
 
     public String SearchEmail(String accessKey) {
