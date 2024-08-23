@@ -47,12 +47,12 @@ public class Member {
     @Column(name="account_id", nullable = false)
     private String accountId;
 
-    @OneToMany(mappedBy = "member")
-    private List<ScanGroup> groups = new ArrayList<>();
-
     @OneToMany(mappedBy = "member", cascade = {CascadeType.ALL, CascadeType.REMOVE})
     private List<IAM> iams = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = {CascadeType.ALL, CascadeType.REMOVE})
     private List<RefreshEntity> refreshEntities = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = {CascadeType.ALL, CascadeType.REMOVE})
+    private List<BridgeEntity> bridgeEntities = new ArrayList<>();
 }
