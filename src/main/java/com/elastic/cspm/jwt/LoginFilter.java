@@ -23,6 +23,7 @@ import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collection;
@@ -78,12 +79,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String role = auth.getAuthority();
 
         //토큰 생성
-        String access = jwtUtil.createJwt("access", username, role, 600000L);
+        String access = jwtUtil.createJwt("access", username, role, 3600000L); // 수정
         String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
 
         //Refresh 토큰 저장
         addRefreshEntity(username, refresh, 86400000L);
         log.info("로그인 성공 : " + username );
+        log.info("AccessToken 생성 시간 - {}", Instant.now());
         //응답 설정
         response.setHeader("access", access);
         response.addCookie(createCookie("refresh", refresh));
