@@ -14,7 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,8 +34,9 @@ public class ResourceController {
      * IAM 레포지토리에서 프론트로 보낼 API가 존재해야 함.
      * 필요한 이유 : IAM에서의 셀렉트 박스는 IAM에 따라 값이 달라지기 때문에.
      */
-    @GetMapping("/iam")
-    public ResponseEntity<List<IamSelectDto>> getIAMName() {
+    @GetMapping("/iam-and-scanGroup")
+    public ResponseEntity<Map<String, List<?>>> getIAMAndScanGroupNames() {
+        // IAM 이름
         List<String> iamNicknames = iamService.getIAMNicknames();
         List<IamSelectDto> iamList = iamNicknames.stream()
                 .map(nickname -> {
@@ -43,16 +46,9 @@ public class ResourceController {
                 })
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(iamList);
-    }
-
-    /**
-     * ScanGroup 선택 API
-     */
-    @GetMapping("/scanGroup")
-    public ResponseEntity<List<ScanGroupSelectDto>> getScanGroupName() {
+        // ScanGroup 이름
         List<String> group = scanGroupService.getScanGroup();
-        List<ScanGroupSelectDto> iamList = group.stream()
+        List<ScanGroupSelectDto> scanGroupList = group.stream()
                 .map(scanGroup -> {
                     ScanGroupSelectDto dto = new ScanGroupSelectDto();
                     dto.setScanGroup(scanGroup);
@@ -60,8 +56,13 @@ public class ResourceController {
                 })
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(iamList);
+        Map<String, List<?>> response = new HashMap<>();
+        response.put("iamList", iamList);
+        response.put("scanGroupList", scanGroupList);
+
+        return ResponseEntity.ok(response);
     }
+
 
     /**
      * IAM 선택과 scanGroup을 필터링하여 조회.
