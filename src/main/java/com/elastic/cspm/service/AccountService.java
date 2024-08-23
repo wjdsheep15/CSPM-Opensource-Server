@@ -6,7 +6,7 @@ import com.elastic.cspm.data.entity.BridgeEntity;
 import com.elastic.cspm.data.entity.IAM;
 import com.elastic.cspm.data.entity.Member;
 import com.elastic.cspm.data.repository.BridgeEntityRepository;
-import com.elastic.cspm.data.repository.GroupRepository;
+import com.elastic.cspm.data.repository.ScanGroupRepository;
 import com.elastic.cspm.data.repository.IamRepository;
 import com.elastic.cspm.data.repository.MemberRepository;
 import com.elastic.cspm.utils.AES256;
@@ -37,7 +37,7 @@ public class AccountService {
 
     private final MemberRepository memberRepository;
     private final IamRepository iamRepository;
-    private final GroupRepository groupRepository;
+    private final ScanGroupRepository scanGroupRepository;
     private final BridgeEntityRepository bridgeEntityRepository;
     private final EmailService emailService;
     private final AES256 aes256;
@@ -128,7 +128,7 @@ public class AccountService {
             // 각 그룹 이름에 대해 BridgeEntity 생성
             for (String groupName : groupNames) {
                 BridgeEntity bridgeEntity = new BridgeEntity();
-                bridgeEntity.setScanGroup(groupRepository.findByResourceGroupName(groupName).orElse(null));
+                bridgeEntity.setScanGroup(scanGroupRepository.findByResourceGroupName(groupName).orElse(null));
                 bridgeEntity.setMember(memberRepository.findByEmail(email).orElse(null));
                 bridgeEntityList.add(bridgeEntity);
             }
