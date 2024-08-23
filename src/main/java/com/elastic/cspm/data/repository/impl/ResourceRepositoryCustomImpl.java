@@ -67,7 +67,7 @@ public class ResourceRepositoryCustomImpl implements ResourceRepositoryCustom {
         return hasText(iam) ? describeResult.iam.nickName.eq(iam) : null;
     }
 
-    // ScanGroup 테이블에 데이터가 있어야 조회가 됨.
+    // ScanGroup 테이블에 데이터가 있어야 조회가 됨. (테이블 하나 더 생기므로 수정 필요.)
     private BooleanExpression scanGroupEq(String group) {
         log.info("resourcegroupname : {}", describeResult.iam.member.groups.any().resourceGroupName.eq(group));
         return hasText(group) ? describeResult.iam.member.groups.any().resourceGroupName.eq(group) : null;

@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 public class IamService {
     private final IamRepository iamRepository;
 
-
     public List<String> getIAMNicknames() {
         return iamRepository.findAll()
                 .stream()

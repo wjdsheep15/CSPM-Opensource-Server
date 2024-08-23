@@ -1,6 +1,7 @@
 package com.elastic.cspm.data.repository;
 
 
+import com.elastic.cspm.data.dto.ResourceFilterRequestDto;
 import com.elastic.cspm.data.entity.IAM;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

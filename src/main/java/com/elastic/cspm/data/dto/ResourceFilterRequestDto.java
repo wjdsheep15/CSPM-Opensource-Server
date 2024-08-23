@@ -17,7 +17,7 @@ public class ResourceFilterRequestDto {
     private int pageIndex;
     private int pageSize;
 
-    private ResourceFilterRequestDto(String iam, String scanGroup, int pageIndex, int pageSize) {
+    public ResourceFilterRequestDto(String iam, String scanGroup, int pageIndex, int pageSize) {
         this.iam = iam;
         this.scanGroup = scanGroup;
         this.pageIndex = pageIndex;
