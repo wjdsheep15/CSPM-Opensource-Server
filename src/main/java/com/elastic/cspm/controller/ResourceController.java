@@ -46,6 +46,7 @@ public class ResourceController {
         return ResponseEntity.ok(iamList);
     }
 
+
     /**
      * ScanGroup 선택 API
      */
