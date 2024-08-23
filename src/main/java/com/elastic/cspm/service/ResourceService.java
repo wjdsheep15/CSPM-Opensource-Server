@@ -48,13 +48,21 @@ public class ResourceService {
     public ResourceListDto getAllResources(ResourceFilterRequestDto resourceFilterDto) throws Exception {
         // DescriptionResult 정보 리스트 반환
         try {
-            // 페이징
-            Pageable pageable = PageRequest.of(resourceFilterDto.getPIndex(), resourceFilterDto.getPSize());
+            // 페이지 인덱스와 필터링 요청이 필요.
+            Pageable pageable = PageRequest.
+                    of(resourceFilterDto.getPageIndex(), resourceFilterDto.getPageSize());
+            log.info("페이징 : {}", pageable);
 
             Page<ResourceRecordDto> resources = resourceRepository.findResourceList(
                     pageable,
                     resourceFilterDto
             ).map(ResourceRecordDto::of);
+
+            log.info("resources : {}", resources);
+            log.info("Content: {}", resources.getContent());
+            log.info("Total Elements: {}", resources.getTotalElements());
+            log.info("Total Pages: {}", resources.getTotalPages());
+
 
             return new ResourceListDto(
                     resources.getContent(),
@@ -62,8 +70,10 @@ public class ResourceService {
                     resources.getTotalPages()
             );
         } catch (Exception e) {
-            log.debug(ExceptionUtils.getStackTrace(e));
-            throw new Exception(String.valueOf(NOT_FOUND));
+            log.error(ExceptionUtils.getStackTrace(e));
+//            throw new Exception(String.valueOf(NOT_FOUND));
+            throw e;
+
         }
     }
 

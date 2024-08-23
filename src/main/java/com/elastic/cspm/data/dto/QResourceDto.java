@@ -1,5 +1,6 @@
 package com.elastic.cspm.data.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,11 +14,11 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
-@NoArgsConstructor
+@AllArgsConstructor
 public class QResourceDto {
     private LocalDateTime scanTime;
     private String accountId;
-    private String resourceId;
     private String resource;
-    private String service;
+    private String resourceId;
+//    private String service;
 }

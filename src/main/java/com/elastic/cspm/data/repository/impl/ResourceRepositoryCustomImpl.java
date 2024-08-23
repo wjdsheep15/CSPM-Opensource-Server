@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static com.elastic.cspm.data.entity.QDescribeResult.describeResult;
+import static com.elastic.cspm.data.entity.QIAM.iAM;
 import static com.elastic.cspm.data.entity.QMember.member;
 import static com.elastic.cspm.data.entity.QScanGroup.scanGroup;
 import static org.springframework.util.StringUtils.hasText;
@@ -40,8 +41,8 @@ public class ResourceRepositoryCustomImpl implements ResourceRepositoryCustom {
     @Transactional(readOnly = true)
     public Page<QResourceDto> findResourceList(Pageable pageable, ResourceFilterRequestDto resourceFilterDto) {
         // 필터링 요청 보낸 로그
-        log.info("Searching resources - IAM : {}, ScanGroup : {}",
-                resourceFilterDto.getIam(), resourceFilterDto.getScanGroup());
+        log.info("Searching resources - IAM : {}, ScanGroup : {}, Page : {}",
+                resourceFilterDto.getIam(), resourceFilterDto.getScanGroup(), pageable);
 
         // 필터링 쿼리 + 페이징
         List<QResourceDto> content = createResourceDtoQuery()
@@ -54,7 +55,7 @@ public class ResourceRepositoryCustomImpl implements ResourceRepositoryCustom {
                 .fetch();
         // stream().toList();
 
-        log.info("Found {} tickets matching the search criteria.", content.size() );
+        log.info("Found {}-ResourceResult", content.size());
         log.info("Page Size : {}  and PageOffset : {}.", pageable.getPageSize(), pageable.getPageNumber());
 
         return new PageImpl<>(content, pageable, content.size());
@@ -62,17 +63,17 @@ public class ResourceRepositoryCustomImpl implements ResourceRepositoryCustom {
     }
 
 
-
     private BooleanExpression iAMEq(String iam) {
-        if(hasText(iam)){
-            return member.iamName.eq(iam);
-        } else return null;
+        return hasText(iam) ? describeResult.iam.nickName.eq(iam) : null;
     }
-    private BooleanExpression scanGroupEq(String group) { // 확실치 않음 수정
-        if(hasText(group)){
-            return scanGroup.resourceGroupName.eq(group);
-        } else return null;
+
+    // ScanGroup 테이블에 데이터가 있어야 조회가 됨.
+    private BooleanExpression scanGroupEq(String group) {
+        log.info("resourcegroupname : {}", describeResult.iam.member.groups.any().resourceGroupName.eq(group));
+        return hasText(group) ? describeResult.iam.member.groups.any().resourceGroupName.eq(group) : null;
+//        return hasText(group) ? describeResult.scanGroup.eq(group) : null;
     }
+
 
     /**
      * projection qResourceDto 조회
@@ -83,13 +84,11 @@ public class ResourceRepositoryCustomImpl implements ResourceRepositoryCustom {
     public JPAQuery<QResourceDto> createResourceDtoQuery() {
         return queryFactory.select(
                         Projections.constructor(QResourceDto.class,
-                                describeResult.iam.member.iamName,
-                                describeResult.iam.member.groups,
-                                describeResult.resourceId,
-                                describeResult.scanTarget))
+                                describeResult.scanTime,
+                                describeResult.iam.member.accountId,
+                                describeResult.scanTarget,
+                                describeResult.resourceId))
                 .from(describeResult)
-                .join(describeResult.iam.member, member)
-                .join(describeResult.iam.member.groups, scanGroup);
-
+                .leftJoin(describeResult.iam.member, member);
     }
 }

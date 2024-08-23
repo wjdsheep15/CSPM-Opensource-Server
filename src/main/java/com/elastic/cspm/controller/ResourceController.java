@@ -2,8 +2,7 @@ package com.elastic.cspm.controller;
 
 import com.elastic.cspm.data.dto.DescribeIamDto;
 import com.elastic.cspm.data.dto.ResourceFilterRequestDto;
-import com.elastic.cspm.data.dto.ResourceResultResponseDto.*;
-import com.elastic.cspm.data.repository.IamRepository;
+import com.elastic.cspm.data.dto.ResourceResultResponseDto.ResourceListDto;
 import com.elastic.cspm.service.IamService;
 import com.elastic.cspm.service.ResourceService;
 import com.elastic.cspm.service.ScanGroupService;
@@ -35,20 +34,19 @@ public class ResourceController {
     /**
      * ScanGroup 선택 API
      */
-//    @GetMapping("/scanGroup")
-//    public ResponseEntity<List<String>> getScanGroup() {
-//        List<String> iamNicknames = iamService.getIAMNicknames();
-//        return ResponseEntity.ok(iamNicknames);
-//    }
+    @GetMapping("/scanGroup")
+    public ResponseEntity<List<String>> getScanGroup() {
+        List<String> iamNicknames = iamService.getIAMNicknames();
+        return ResponseEntity.ok(iamNicknames);
+    }
 
     /**
      * IAM 선택과 scanGroup을 필터링하여 조회.
      */
     @GetMapping("/list")
     public ResponseEntity<ResourceListDto> getResources(@RequestBody ResourceFilterRequestDto resourceFilterDto) throws Exception {
-        log.info(
-                resourceFilterDto.getIam() + resourceFilterDto.getScanGroup());
-
+        log.info("IAM : {}, GroupScan : {}", resourceFilterDto.getIam(), resourceFilterDto.getScanGroup());
+        log.info("pIndex : {}, pSize : {}", resourceFilterDto.getPageIndex(), resourceFilterDto.getPageSize());
 
         ResourceListDto allResources = resourceService.getAllResources(resourceFilterDto);
         return ResponseEntity.ok(allResources);
