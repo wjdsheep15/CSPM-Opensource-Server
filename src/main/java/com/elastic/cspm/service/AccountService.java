@@ -164,7 +164,6 @@ public class AccountService {
             return "exit";
         }
         return emailService.sendEmailNotice(email);
-
     }
 
     public String SearchEmail(String accessKey) {
