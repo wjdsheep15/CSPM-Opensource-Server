@@ -46,7 +46,7 @@ public class DashboardController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Map<String, String>> postGroup(HttpServletRequest request, @RequestBody ResponseScanGroupDto responseScanGroupDto){
+    public ResponseEntity<Map<String, String>> postGroup(HttpServletRequest request,@Valid @RequestBody ResponseScanGroupDto responseScanGroupDto){
 
         String email = refreshService.getEmail(request);
         if(email == null){
