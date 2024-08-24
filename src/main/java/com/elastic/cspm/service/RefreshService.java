@@ -118,4 +118,23 @@ public class RefreshService {
 
         refreshRepository.save(refreshEntity);
     }
+
+    public String getEmail(HttpServletRequest request){
+
+        String refresh = null;
+        Cookie[] cookies = request.getCookies();
+
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("refresh")) {
+                refresh = cookie.getValue();
+            }
+        }
+
+        if (refresh == null) {
+            log.info("refresh 토큰이 없습니다.");
+            return  null;
+        }
+
+        return jwtUtil.getUsername(refresh);
+    }
 }

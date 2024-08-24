@@ -1,20 +1,20 @@
 package com.elastic.cspm.controller;
 
+import com.elastic.cspm.data.dto.ResponseScanGroupDto;
 import com.elastic.cspm.data.dto.ScanGroupDto;
 import com.elastic.cspm.jwt.JWTUtil;
 import com.elastic.cspm.service.DashboardService;
-import jakarta.servlet.http.Cookie;
+import com.elastic.cspm.service.RefreshService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -23,6 +23,7 @@ import java.util.List;
 public class DashboardController {
 
     private final DashboardService dashboardService;
+    private final RefreshService refreshService;
     private final JWTUtil jwtUtil;
 
     /**
@@ -33,20 +34,8 @@ public class DashboardController {
      */
     @GetMapping("/group")
     public ResponseEntity<List<ScanGroupDto>> getGroup(HttpServletRequest request, HttpServletResponse response){
-        String refresh = null;
-        Cookie[] cookies = request.getCookies();
 
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("refresh")) {
-                refresh = cookie.getValue();
-            }
-        }
-
-        if (refresh == null) {
-            log.info("refresh 토큰이 없습니다.");
-            return  ResponseEntity.status(400).build();
-        }
-        String email = jwtUtil.getUsername(refresh);
+        String email = refreshService.getEmail(request);
 
         List<ScanGroupDto> scanGroupDtos = dashboardService.getScanGroup(email);
         if (scanGroupDtos.isEmpty()) {
@@ -56,4 +45,33 @@ public class DashboardController {
         return ResponseEntity.ok(scanGroupDtos);
     }
 
+    @PostMapping("")
+    public ResponseEntity<Map<String, String>> postGroup(HttpServletRequest request, @RequestBody ResponseScanGroupDto responseScanGroupDto){
+
+        String email = refreshService.getEmail(request);
+        if(email == null){
+            return ResponseEntity.status(400).body(Map.of("result", "not refresh Token"));
+        }
+
+        if(responseScanGroupDto== null){
+            return ResponseEntity.status(404).body(Map.of("result", "not ResponseScanGroupDto"));
+        }
+        Boolean result = dashboardService.saveGroup(email, responseScanGroupDto);
+        if (result) {
+            return ResponseEntity.ok(Map.of("result", "success"));
+        }else{
+            return ResponseEntity.status(404).body(Map.of("result", "service fail"));
+        }
+    }
+
+    @DeleteMapping("/{groupName}")
+    public ResponseEntity<Map<String, String>> deleteGroup( @PathVariable String groupName){
+
+        Boolean result = dashboardService.deleteGroup(groupName);
+        if (result) {
+            return ResponseEntity.ok(Map.of("result", "success"));
+        }else{
+            return ResponseEntity.status(404).body(Map.of("result", "service fail"));
+        }
+    }
 }
