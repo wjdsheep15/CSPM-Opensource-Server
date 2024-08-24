@@ -5,7 +5,7 @@ import com.elastic.cspm.data.dto.ResourceFilterRequestDto;
 import com.elastic.cspm.data.dto.ResourceResultResponseDto.ResourceListDto;
 import com.elastic.cspm.data.dto.IamSelectDto;
 import com.elastic.cspm.data.dto.ScanGroupSelectDto;
-import com.elastic.cspm.data.repository.GroupRepository;
+import com.elastic.cspm.data.repository.ScanGroupRepository;
 import com.elastic.cspm.service.IamService;
 import com.elastic.cspm.service.ResourceService;
 import com.elastic.cspm.service.ScanGroupService;
@@ -25,7 +25,7 @@ public class ResourceController {
     private final ResourceService resourceService;
     private final IamService iamService;
     private final ScanGroupService scanGroupService;
-    private final GroupRepository groupRepository;
+    private final ScanGroupRepository groupRepository;
 
     /**
      * IAM 선택 API

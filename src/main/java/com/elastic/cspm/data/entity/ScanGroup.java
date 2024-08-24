@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static jakarta.persistence.FetchType.LAZY;
 
 @Entity
@@ -48,7 +51,7 @@ public class ScanGroup {
     @Column(name = "rds", nullable = false)
     private boolean rds;
 
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "email")
-    private Member member;
+    @OneToMany(mappedBy = "scanGroup", cascade = {CascadeType.ALL, CascadeType.REMOVE})
+    private List<BridgeEntity> bridges = new ArrayList<>();
+
 }

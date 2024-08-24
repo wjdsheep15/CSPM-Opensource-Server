@@ -15,7 +15,7 @@ VALUES
         'PCI DSS 1.2.1, Nist.800-53.R5 AC-4, CIS AWS Foundations Benchmark 4.1',
         '사용 중인 인스턴스의 보안 그룹에서 인바운드 정책이 0.0.0.0/0으로 오픈되어 있는 경우, 인터넷의 모든 IP 주소에서 해당 인스턴스로의 접근이 허용되어 있음을 의미합니다. 이렇게 되면 인스턴스가 보안 위협에 노출될 수 있습니다.',
         '1. 필요한 IP 주소 또는 IP 주소 범위만 허용하도록 인바운드 정책을 수정합니다. 이를 통해 신뢰할 수 있는 IP 주소만 인스턴스에 접근할 수 있습니다. 2. 보안 그룹에서 특정 포트만 허용하도록 설정합니다. 예를 들어, SSH 포트(22)를 허용하되, 다른 포트를 차단하도록 설정할 수 있습니다. 3. VPN 또는 프라이빗 링크를 사용하여 안전하게 연결하도록 네트워크를 구성합니다. 이렇게 하면 인터넷을 통한 접근을 완전히 차단할 수 있습니다. 4. 정기적인 보안 그룹 리뷰를 수행하여 인바운드 정책을 엄격하게 관리하고, 필요하지 않은 접근을 차단합니다. 5. 네트워크 ACL을 사용하여 보안 그룹과 별도로 보안 계층을 추가합니다.',
-        'WHERE p.ip_permissions LIKE ''%CidrIp=0.0.0.0/0%'';'
+        'CidrIp=0.0.0.0/0'
     ),
     (
         '보안그룹 Outbound Any open(0.0.0.0) 점검',
@@ -109,18 +109,24 @@ VALUES
         'ISO/IEC 27001:2013 A.13.1.1, CIS AWS Foundations Benchmark 4.3',
         '라우팅 테이블에 0.0.0.0/0 경로가 있는지 감지하여 네트워크 보안을 강화합니다. 0.0.0.0/0 경로는 모든 IP 주소로의 트래픽을 허용하는 경로로, 잘못 구성된 경우 보안 위험을 초래할 수 있습니다.',
         '1. 라우팅 테이블을 주기적으로 검토하여 0.0.0.0/0 경로가 필요한지 확인합니다. 2. 0.0.0.0/0 경로가 필요한 경우, 이를 제한된 IP 주소나 네트워크로 변경하거나, 적절한 보안 그룹과 네트워크 ACL을 설정하여 보호합니다. 3. AWS Config와 같은 서비스를 사용하여 라우팅 테이블 변경 사항을 모니터링하고, 알림을 설정하여 관리합니다. 4. 필요하지 않은 0.0.0.0/0 경로를 삭제하여 불필요한 네트워크 노출을 방지합니다.',
-        'WHERE p.routes LIKE ''%DestinationCidrBlock=0.0.0.0/0%'';'
-    );
+        'DestinationCidrBlock=0.0.0.0/0'
+    )ON DUPLICATE KEY UPDATE
+                          category = VALUES(category),
+                          severity = VALUES(severity),
+                          compliance = VALUES(compliance),
+                          description = VALUES(description),
+                          response = VALUES(response),
+                          pattern = VALUES(pattern);
 
 
+INSERT INTO scan_group (ebs, eni, iam, instance, internet_gate_way, rds, route_table, s3, security_group, subnet, vpc, resource_group_name)
+SELECT true, true, true, true, true, true, true, true, true, true, true, 'default'
+WHERE NOT EXISTS (SELECT 1 FROM scan_group WHERE resource_group_name = 'default');
 
+INSERT INTO scan_group (ebs, eni, iam, instance, internet_gate_way, rds, route_table, s3, security_group, subnet, vpc, resource_group_name)
+SELECT false, false, false, false, true, true, true, true, true, true, true, 'VPC Group'
+WHERE NOT EXISTS (SELECT 1 FROM scan_group WHERE resource_group_name = 'VPC Group');
 
-
-
-
-
-
-
-
-
-
+INSERT INTO scan_group (ebs, eni, iam, instance, internet_gate_way, rds, route_table, s3, security_group, subnet, vpc, resource_group_name)
+SELECT true, true, false, true, false, false, false, false, false, false, false, '인스턴스 Group'
+WHERE NOT EXISTS (SELECT 1 FROM scan_group WHERE resource_group_name = '인스턴스 Group');
