@@ -74,12 +74,12 @@ public class SecurityConfig {
         //csrf disable
         http
                 .csrf(AbstractHttpConfigurer::disable);
-                // From 로그인 방식 disable
+        // From 로그인 방식 disable
         http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable);
 
-                // 경로별 인가 작업
+        // 경로별 인가 작업
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()

@@ -2,9 +2,11 @@ package com.elastic.cspm.service;
 
 import com.elastic.cspm.data.dto.InfoResponseDto;
 import com.elastic.cspm.data.dto.SignupDto;
+import com.elastic.cspm.data.entity.BridgeEntity;
 import com.elastic.cspm.data.entity.IAM;
 import com.elastic.cspm.data.entity.Member;
-import com.elastic.cspm.data.repository.GroupRepository;
+import com.elastic.cspm.data.repository.BridgeEntityRepository;
+import com.elastic.cspm.data.repository.ScanGroupRepository;
 import com.elastic.cspm.data.repository.IamRepository;
 import com.elastic.cspm.data.repository.MemberRepository;
 import com.elastic.cspm.utils.AES256;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
@@ -24,6 +27,9 @@ import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.GetCallerIdentityRequest;
 import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -31,7 +37,8 @@ public class AccountService {
 
     private final MemberRepository memberRepository;
     private final IamRepository iamRepository;
-    private final GroupRepository groupRepository;
+    private final ScanGroupRepository scanGroupRepository;
+    private final BridgeEntityRepository bridgeEntityRepository;
     private final EmailService emailService;
     private final AES256 aes256;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -86,10 +93,9 @@ public class AccountService {
         }
     }
 
-
+    @Transactional(rollbackFor = Exception.class)
     public boolean signup(SignupDto signupDto) {
-        boolean memberResult = false ;
-        boolean iamResult = true ;
+        boolean iamResult = false ;
         String password = aes256.decrypt(signupDto.getPassword());
 
         try {
@@ -101,16 +107,36 @@ public class AccountService {
             member.setIamName(signupDto.getUserName());
             memberRepository.save(member);
 
-            memberResult = true ;
-            iamResult = iamSave(signupDto.getEmail(), signupDto.getAccessKey(), signupDto.getSecretKey(), signupDto.getRegion());
 
-            if( memberResult && iamResult ) {
-                return true;
-            }else {
-                return false;
-            }
+            iamResult = iamSave(signupDto.getEmail(), signupDto.getAccessKey(), signupDto.getSecretKey(), signupDto.getRegion());
+            boolean groupResult = groupSave(signupDto.getEmail());
+
+            return groupResult && iamResult;
         }catch (Exception e) {
-            System.out.println(e);
+           log.error("회원가입 실패  : " + e.getMessage());
+            return false;
+        }
+    }
+
+    public Boolean groupSave(String email){
+        try{
+            List<BridgeEntity> bridgeEntityList = new ArrayList<>();
+
+            // 리소스 그룹 이름 배열
+            String[] groupNames = {"default", "VPC Group", "인스턴스 Group"};
+
+            // 각 그룹 이름에 대해 BridgeEntity 생성
+            for (String groupName : groupNames) {
+                BridgeEntity bridgeEntity = new BridgeEntity();
+                bridgeEntity.setScanGroup(scanGroupRepository.findByResourceGroupName(groupName).orElse(null));
+                bridgeEntity.setMember(memberRepository.findByEmail(email).orElse(null));
+                bridgeEntityList.add(bridgeEntity);
+            }
+
+            bridgeEntityRepository.saveAll(bridgeEntityList);
+            return true;
+        } catch (Exception e){
+            log.error("회원가입 그룹 매핑 실패  : " + e.getMessage());
             return false;
         }
     }
@@ -127,6 +153,7 @@ public class AccountService {
            iamRepository.save(iam);
            return true;
        }catch(Exception e) {
+           log.error("회원가입 Iam 저장 실패  : " + e.getMessage());
            return false;
        }
     }
@@ -137,7 +164,6 @@ public class AccountService {
             return "exit";
         }
         return emailService.sendEmailNotice(email);
-
     }
 
     public String SearchEmail(String accessKey) {

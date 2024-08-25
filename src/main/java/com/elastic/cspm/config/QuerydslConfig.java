@@ -2,20 +2,19 @@ package com.elastic.cspm.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-
+import org.springframework.context.annotation.Primary;
 
 @Configuration
-@RequiredArgsConstructor
 public class QuerydslConfig {
+    @PersistenceContext
+    private EntityManager entityManager;
 
-    private final EntityManager em;
-
-    @Bean
-    public JPAQueryFactory jpaQueryFactory(EntityManager em) {
-        return new JPAQueryFactory(em);
+    @Primary
+    @Bean(name = "jpaQueryFactory")
+    public JPAQueryFactory jpaQueryFactory() {
+        return new JPAQueryFactory(entityManager);
     }
 }
