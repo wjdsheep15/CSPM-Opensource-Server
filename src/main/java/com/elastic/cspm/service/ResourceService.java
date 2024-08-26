@@ -6,6 +6,7 @@ import com.elastic.cspm.data.dto.ResourceResultData;
 import com.elastic.cspm.data.entity.DescribeResult;
 import com.elastic.cspm.data.entity.IAM;
 import com.elastic.cspm.data.repository.IamRepository;
+import com.elastic.cspm.data.repository.PolicyRepository;
 import com.elastic.cspm.data.repository.ResourceRepository;
 import com.elastic.cspm.service.aws.CredentialManager;
 import com.elastic.cspm.utils.AES256;
@@ -27,12 +28,14 @@ import software.amazon.awssdk.services.s3.model.ListBucketsRequest;
 import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import static com.elastic.cspm.data.dto.ResourceResultResponseDto.ResourceListDto;
 import static com.elastic.cspm.data.dto.ResourceResultResponseDto.ResourceRecordDto;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Slf4j
 @Service
@@ -42,7 +45,7 @@ public class ResourceService {
     private final IamRepository iamRepository;
     private final AES256 aes256Util;
     private final CredentialManager credentialManager;
-//    private final CredentialInfo credentialInfo;
+    private final PolicyRepository policyRepository;
 
     // IAM과 Group으로 스캔시간, AccountId, 리소스, 리소스ID, 서비스 조회
     public ResourceListDto getAllResources(ResourceFilterRequestDto resourceFilterDto) throws Exception {
@@ -80,22 +83,28 @@ public class ResourceService {
     /**
      * 스캔 시작 비즈니스 로직
      */
-    public ResponseEntity<Void> startDescribe(List<DescribeIamDto> describeIamList) throws Exception {
+    public List<ResourceResultData> startDescribe(List<DescribeIamDto> describeIamList) throws Exception {
         List<ResourceResultData> describeResultDataList = new ArrayList<>();
 
         for (DescribeIamDto describeIamDto : describeIamList) {
             String iamName = describeIamDto.getIam(); // IAM 닉네임
 
             IAM user = iamRepository.findIAMByNickName(iamName);
+
             String accessKey = aes256Util.decrypt(user.getAccessKey());
             String secretKey = aes256Util.decrypt(user.getSecretKey());
-            credentialManager.createCredentials(Region.of(user.getRegion()), accessKey, secretKey);
+            String regionKey = aes256Util.decrypt(user.getRegion());
+            credentialManager.createCredentials(accessKey, secretKey, Region.of(regionKey));
 
             Boolean isAllSuccess = true;
             List<DescribeResult> describeEntityList = new ArrayList<>();
 
             // 스캔 시작
             List<?> scanDescribe = groupScanDescribe(describeIamDto);
+            log.info("scanDescribe : {}", scanDescribe);
+
+            // 스캔 후 policy에서 pattern과 groupname으로 찾기.
+
 
             if(scanDescribe != null) {
                 for(Object entity : scanDescribe){
@@ -110,10 +119,12 @@ public class ResourceService {
             else {
                 isAllSuccess = false;
             }
+            log.info("isAllSuccess : {}", isAllSuccess);
 
             // ResourceResultData 객체를 생성
-            describeResultDataList.add(
-                    ResourceResultData.of(isAllSuccess, describeEntityList));
+
+//            describeResultDataList.add(
+//                    ResourceResultData.of(isAllSuccess, describeEntityList));
         }
         log.info("describe result: {}", describeResultDataList);
 
@@ -124,7 +135,7 @@ public class ResourceService {
             isAllSuccessList.add(resultData.getIsAllSuccess());
         }
 
-        return !isAllSuccessList.contains(false) ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return !isAllSuccessList.contains(false) ? describeResultDataList : null;
     }
 
     /**
@@ -133,6 +144,7 @@ public class ResourceService {
      */
     private List<?> groupScanDescribe(DescribeIamDto describeIamDto) {
         String scanGroup = describeIamDto.getScanGroup();
+        log.info("scanGroup : {}", scanGroup);
         return switch (scanGroup) {
             case "VPC" -> vpcDescribe();
             case "EC2" -> ec2Describe();
@@ -143,6 +155,7 @@ public class ResourceService {
 
     private List<Vpc> vpcDescribe() {
         Ec2Client vpcClient = credentialManager.getEc2Client();
+        log.info("vpcClient : {}", vpcClient);
         List<Vpc> vpcList = new ArrayList<>();
 
         try (vpcClient) {

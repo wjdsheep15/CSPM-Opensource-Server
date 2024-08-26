@@ -1,10 +1,7 @@
 package com.elastic.cspm.controller;
 
-import com.elastic.cspm.data.dto.DescribeIamDto;
-import com.elastic.cspm.data.dto.ResourceFilterRequestDto;
+import com.elastic.cspm.data.dto.*;
 import com.elastic.cspm.data.dto.ResourceResultResponseDto.ResourceListDto;
-import com.elastic.cspm.data.dto.IamSelectDto;
-import com.elastic.cspm.data.dto.ScanGroupSelectDto;
 import com.elastic.cspm.data.repository.ScanGroupRepository;
 import com.elastic.cspm.service.IamService;
 import com.elastic.cspm.service.ResourceService;
@@ -79,9 +76,12 @@ public class ResourceController {
     /**
      * 스캔 시작 API
      */
-    @PostMapping
-    public ResponseEntity<Void> saveDescribe(@RequestBody List<DescribeIamDto> describeIamList) throws Exception {
-        return resourceService.startDescribe(describeIamList);
+    @PostMapping("/startScan")
+    public ResponseEntity<List<ResourceResultData>> saveDescribe(@RequestBody List<DescribeIamDto> describeIamList) throws Exception {
+        log.info("스캔 시작");
+        List<ResourceResultData> resourceResultData = resourceService.startDescribe(describeIamList);
+
+        return ResponseEntity.ok(resourceResultData);
     }
 
     /**

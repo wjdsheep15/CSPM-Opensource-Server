@@ -27,6 +27,9 @@ public class DescribeResult {
     @Column(name = "scan_target", nullable = false)
     private String scanTarget; // resource로 스캔 대상
 
+    @Column(name = "scan_group", nullable = false)
+    private String scanGroup;
+
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "iam_id")
     private IAM iam;
