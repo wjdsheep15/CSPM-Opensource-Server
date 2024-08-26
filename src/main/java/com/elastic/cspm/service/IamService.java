@@ -1,15 +1,19 @@
 package com.elastic.cspm.service;
 
+import com.elastic.cspm.data.dto.IamAddDto;
 import com.elastic.cspm.data.dto.IamSelectDto;
 import com.elastic.cspm.data.dto.InfoResponseDto;
 import com.elastic.cspm.data.entity.IAM;
+import com.elastic.cspm.data.entity.Member;
 import com.elastic.cspm.data.repository.IamRepository;
+import com.elastic.cspm.data.repository.MemberRepository;
 import com.elastic.cspm.utils.AES256;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
@@ -30,6 +34,7 @@ import java.util.stream.Collectors;
 public class IamService {
     private final IamRepository iamRepository;
     private final AES256 aes256;
+    private final MemberRepository memberRepository;
 
     public List<String> getIAMNicknames() {
         return iamRepository.findAll()
@@ -84,6 +89,28 @@ public class IamService {
             log.error(" AWS SDK 클라이언트 예외 처리 : " + e.getMessage());
             infoResponseDto.setStatus(2);
             return infoResponseDto;
+        }
+    }
+    @Transactional(rollbackFor = Exception.class)
+    public boolean add(IamAddDto iamAddDto , String email) {
+        try {
+            Member member = memberRepository.findByEmail(email).orElse(null);
+            if (member == null){
+                return false;
+            }
+            IAM iam = new IAM();
+            iam.setAccessKey(iamAddDto.getAccessKey());
+            iam.setSecretKey(iamAddDto.getSecretKey());
+            iam.setRegion(iamAddDto.getRegion());
+            iam.setNickName(iamAddDto.getNickName());
+            iam.setMember(member);
+
+            iamRepository.save(iam);
+
+            return true;
+        }catch (Exception e) {
+            log.error("IAM 추가 실패  : " + e.getMessage());
+            return false;
         }
     }
 

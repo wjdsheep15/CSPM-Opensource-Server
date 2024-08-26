@@ -1,22 +1,35 @@
 package com.elastic.cspm.controller;
 
+import com.elastic.cspm.data.dto.IamAddDto;
 import com.elastic.cspm.data.dto.IamSelectDto;
 import com.elastic.cspm.data.dto.InfoResponseDto;
 import com.elastic.cspm.service.IamService;
+import com.elastic.cspm.service.RefreshService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/api/iamsettings")
 @RequiredArgsConstructor
 public class IamsettingController {
     private final IamService iamService;
+    private final RefreshService refreshService;
+    @PostMapping("/add")
+    public ResponseEntity<Map<String, String>> add(@Valid @RequestBody IamAddDto iamAddDto, HttpServletRequest request){
+        String email = refreshService.getEmail(request);
 
-    @PostMapping
+        Boolean isAddIamSuccessful = iamService.add(iamAddDto, email);
+
+        return isAddIamSuccessful ? ResponseEntity.ok(Map.of("result","add sucess")) : ResponseEntity.badRequest().body(Map.of("result","add fail"));
+    }
+
 
     @GetMapping("/validation/iam")
     public ResponseEntity<InfoResponseDto> addIamValidation(@RequestParam String accessKey, @RequestParam String secretKey, @RequestParam String region) {
