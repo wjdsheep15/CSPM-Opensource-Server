@@ -41,8 +41,6 @@ public class JWTFilter extends OncePerRequestFilter {
         // 토큰 만료 여부 확인, 만료시 다음 필터로 넘기지 않음
         try {
             jwtUtil.isExpired(accessToken);
-            log.info("토큰이 만료");
-            log.info("AccessToken 만료된 시간 - {}", Instant.now());
         } catch (ExpiredJwtException e) {
 
             //response body
@@ -58,7 +56,6 @@ public class JWTFilter extends OncePerRequestFilter {
         String category = jwtUtil.getCategory(accessToken);
 
         if (!category.equals("access")) {
-            log.info("access 토큰 만료");
             //response body
             PrintWriter writer = response.getWriter();
             writer.print("invalid access token");
