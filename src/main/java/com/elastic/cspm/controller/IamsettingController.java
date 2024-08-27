@@ -73,8 +73,21 @@ public class IamsettingController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteIam(@RequestBody List<IamSelectDto> iamSelectDtoList){
-        return iamService.iamDelete(iamSelectDtoList);
+    public ResponseEntity<Map<String, String>> deleteIam(@RequestBody List<IamSelectDto> iamSelectDtoList){
+
+        // iam 삭제 요청시 Dto에 빈값이 전달 되는 경우
+        if(iamSelectDtoList == null || iamSelectDtoList.isEmpty()){
+            return ResponseEntity.badRequest().build();
+        }
+
+        boolean result = iamService.iamDelete(iamSelectDtoList);
+
+        if(!result){
+            // nickName을 찾지 못해 삭제하지 못한 경우
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("result","nickName not found"));
+        }
+
+        return ResponseEntity.ok(Map.of("result","Success"));
     }
 
 }
