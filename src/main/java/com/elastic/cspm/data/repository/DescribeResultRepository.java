@@ -9,4 +9,7 @@ import java.util.List;
 
 public interface DescribeResultRepository extends JpaRepository<DescribeResult, Long> {
     List<DescribeResult> findByIamAndGroupName(IAM iam, String groupName);
+
+    List<String> findByIam(IAM iam);
+
 }
