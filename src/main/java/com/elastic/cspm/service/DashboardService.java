@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.elastic.cspm.utils.GroupColor.GrouColor.COLOR1;
 
 @Slf4j
 @Service
