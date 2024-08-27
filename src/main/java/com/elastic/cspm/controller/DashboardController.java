@@ -1,5 +1,6 @@
 package com.elastic.cspm.controller;
 
+import com.elastic.cspm.data.dto.GraphScanDto;
 import com.elastic.cspm.data.dto.ResponseScanGroupDto;
 import com.elastic.cspm.data.dto.ScanGroupDto;
 import com.elastic.cspm.jwt.JWTUtil;
@@ -73,5 +74,14 @@ public class DashboardController {
         }else{
             return ResponseEntity.status(404).body(Map.of("result", "service fail"));
         }
+    }
+
+    @GetMapping("/graph/{groupName}")
+    public ResponseEntity<List<GraphScanDto>> getGroupGraph(@PathVariable String groupName){
+        List<GraphScanDto> graphScanDtosList = dashboardService.getScanGraphData(groupName);
+        if (graphScanDtosList.isEmpty()){
+            return ResponseEntity.status(404).build();
+        }
+        return ResponseEntity.ok(graphScanDtosList);
     }
 }

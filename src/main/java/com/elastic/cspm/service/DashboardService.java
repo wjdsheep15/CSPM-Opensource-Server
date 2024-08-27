@@ -1,5 +1,6 @@
 package com.elastic.cspm.service;
 
+import com.elastic.cspm.data.dto.GraphScanDto;
 import com.elastic.cspm.data.dto.ResponseScanGroupDto;
 import com.elastic.cspm.data.dto.ScanGroupDto;
 import com.elastic.cspm.data.entity.BridgeEntity;
@@ -99,6 +100,15 @@ public class DashboardService {
         log.info("삭제 성공");
         scanGroupRepository.delete(scanGroup);
         return true;
+    }
+
+    public List<GraphScanDto> getScanGraphData(String groupName) {
+        ScanGroup scanGroup = scanGroupRepository.findByResourceGroupName(groupName).orElse(null);
+        if(scanGroup == null){
+            return null;
+        }
+        List<GraphScanDto> graphScanDtos = new ArrayList<>();
+        return graphScanDtos;
     }
 
 }

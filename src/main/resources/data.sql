@@ -101,7 +101,7 @@ VALUES
         'ISO/IEC 27001:2013 A.13.1.1, CIS AWS Foundations Benchmark 2.6',
         '인스턴스에 할당된 Public IP를 감지하여 네트워크 보안 및 자원 관리에 도움을 줍니다. Public IP가 할당된 인스턴스는 인터넷으로부터 접근이 가능하므로, 이를 적절하게 관리하지 않으면 보안 위협에 노출될 수 있습니다.',
         '1. 모든 Public IP 할당을 주기적으로 검토하고 필요한 경우에만 Public IP를 할당합니다. 2. 필요하지 않은 Public IP를 제거하여 불필요한 노출을 최소화합니다. 3. 보안 그룹과 네트워크 ACL을 사용하여 Public IP로의 접근을 엄격하게 제어합니다. 4. AWS Config와 같은 서비스를 사용하여 Public IP 할당 변경 사항을 모니터링하고 알림을 설정합니다.',
-        'WHERE p.public_address!='''';'
+        'public_address!='''';'
     ),(
         '라우팅 테이블 0.0.0.0 탐지',
         '계정 관리',
