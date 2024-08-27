@@ -28,7 +28,9 @@ import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.elastic.cspm.data.dto.ResourceResultResponseDto.ResourceListDto;
 import static com.elastic.cspm.data.dto.ResourceResultResponseDto.ResourceRecordDto;
@@ -108,7 +110,7 @@ public class ResourceService {
 
             // 스캔 후 policy에서 pattern과 groupname으로 찾기.
             // Policy 의 pattern 에 where 뒷부분으로 = 앞에 있는게 키 뒤가 value
-
+            findPattern();
 
 
             //
@@ -302,13 +304,17 @@ public class ResourceService {
         }
     }
 
-    private void findPattern(String pattern, String groupName) {
+    private List<Map<String, String>> findPattern(String pattern, String groupName) {
         List<Policy> policies = policyRepository.findPolicyByPatternAndGroupName(pattern, groupName);
+
+
         List<String> scanTargets = new ArrayList<>();
-//        for (Policy policy : policies) {
-//            // 예시: policy의 키와 값을 조합하여 문자열로 생성
-//            String keyValue = policy.getKey() + "=" + policy.getValue(); // getKey()와 getValue()는 예시 메서드
-//            scanTargets.add(keyValue);
-//        }
+        // 키-값 형태로 리스트 생성
+        for (Policy policy : policies) {
+            Map<String, String> policyMap = new HashMap<>();
+
+        }
+
+
     }
 }
