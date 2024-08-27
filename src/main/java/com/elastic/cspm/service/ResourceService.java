@@ -303,7 +303,7 @@ public class ResourceService {
     }
 
     private void findPattern(String pattern, String groupName) {
-        List<Policy> policies = policyRepository.findPolicyByPattern(pattern);
+        List<Policy> policies = policyRepository.findPolicyByPatternAndGroupName(pattern, groupName);
         List<String> scanTargets = new ArrayList<>();
 //        for (Policy policy : policies) {
 //            // 예시: policy의 키와 값을 조합하여 문자열로 생성
