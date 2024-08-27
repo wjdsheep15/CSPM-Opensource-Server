@@ -5,6 +5,7 @@ import com.elastic.cspm.data.dto.ResourceFilterRequestDto;
 import com.elastic.cspm.data.dto.ResourceResultData;
 import com.elastic.cspm.data.entity.DescribeResult;
 import com.elastic.cspm.data.entity.IAM;
+import com.elastic.cspm.data.entity.Policy;
 import com.elastic.cspm.data.repository.IamRepository;
 import com.elastic.cspm.data.repository.PolicyRepository;
 import com.elastic.cspm.data.repository.ResourceRepository;
@@ -106,6 +107,8 @@ public class ResourceService {
             log.info("scanDescribe : {}", scanDescribe);
 
             // 스캔 후 policy에서 pattern과 groupname으로 찾기.
+            // Policy 의 pattern 에 where 뒷부분으로 = 앞에 있는게 키 뒤가 value
+
 
 
             //
@@ -127,8 +130,8 @@ public class ResourceService {
 
             // ResourceResultData 객체를 생성
 
-//            describeResultDataList.add(
-//                    ResourceResultData.of(isAllSuccess, describeEntityList));
+            describeResultDataList.add(
+                    ResourceResultData.of(isAllSuccess, describeEntityList));
         }
         log.info("describe result: {}", describeResultDataList);
 
@@ -297,5 +300,15 @@ public class ResourceService {
             log.error("Failed to describe S3 buckets: {}", e.awsErrorDetails().errorMessage());
             return new ArrayList<>();
         }
+    }
+
+    private void findPattern(String pattern, String groupName) {
+        List<Policy> policies = policyRepository.findPolicyByPattern(pattern);
+        List<String> scanTargets = new ArrayList<>();
+//        for (Policy policy : policies) {
+//            // 예시: policy의 키와 값을 조합하여 문자열로 생성
+//            String keyValue = policy.getKey() + "=" + policy.getValue(); // getKey()와 getValue()는 예시 메서드
+//            scanTargets.add(keyValue);
+//        }
     }
 }

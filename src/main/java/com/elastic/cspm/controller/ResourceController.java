@@ -98,10 +98,13 @@ public class ResourceController {
         // iam과 group 선택하지 않으면 에러가 발생.
         List<ResourceResultData> resourceResultData = resourceService.startDescribe(combinedRequestDto.getDescribeIamList());
         log.info("ResourceResultData!!: {}", resourceResultData);
+        log.info("스캔 끝");
 
         log.info("IAM : {}, GroupScan : {}", combinedRequestDto.getResourceFilterDto().getIam(), combinedRequestDto.getResourceFilterDto().getScanGroup());
         log.info("pIndex : {}, pSize : {}", combinedRequestDto.getResourceFilterDto().getPageIndex(), combinedRequestDto.getResourceFilterDto().getPageSize());
 
+        // 필터링 리스트 조회
+        // 조회하는 부분 엔티티 추가돼서 쿼리 수정 필요.
         ResourceListDto allResources = resourceService.getAllResources(combinedRequestDto.getResourceFilterDto());
 
         Map<String, Object> response = new HashMap<>();

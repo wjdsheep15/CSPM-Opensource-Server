@@ -36,6 +36,7 @@ public class IamService {
     private final AES256 aes256;
     private final MemberRepository memberRepository;
 
+    // IAM을 가져왔는데 Email통해서 같은지 확인을 하고 반환을 하도록 해야 함.
     public List<String> getIAMNicknames() {
         return iamRepository.findAll()
                 .stream()
