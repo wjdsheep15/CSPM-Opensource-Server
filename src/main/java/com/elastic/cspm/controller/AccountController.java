@@ -97,7 +97,7 @@ public class AccountController {
     }
 
     /**
-     * password 찾기 EndPoint
+     * password 재설정 EndPoint
      * @param email
      * @return
      */
