@@ -16,8 +16,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -28,10 +26,7 @@ import software.amazon.awssdk.services.s3.model.ListBucketsRequest;
 import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 import static com.elastic.cspm.data.dto.ResourceResultResponseDto.ResourceListDto;
@@ -85,15 +80,22 @@ public class ResourceService {
      */
     public List<ResourceResultData> startDescribe(List<DescribeIamDto> describeIamList) throws Exception {
         List<ResourceResultData> describeResultDataList = new ArrayList<>();
+        log.info("describeIamList : {}", describeIamList);
 
         for (DescribeIamDto describeIamDto : describeIamList) {
-            String iamName = describeIamDto.getIam(); // IAM 닉네임
+            log.info("Processing DescribeIamDto: {}", describeIamDto);
 
+            String iamName = describeIamDto.getIam(); // IAM 닉네임
             IAM user = iamRepository.findIAMByNickName(iamName);
+
+            if(user == null) {
+                log.error("No IAM user found with nickname: {}", iamName);
+                continue;
+            }
 
             String accessKey = aes256Util.decrypt(user.getAccessKey());
             String secretKey = aes256Util.decrypt(user.getSecretKey());
-            String regionKey = aes256Util.decrypt(user.getRegion());
+            String regionKey = aes256Util.decrypt(user.getRegion()); // 암호화해서 DB에 들어가기 때문에 복호화 해서 넣어줌.
             credentialManager.createCredentials(accessKey, secretKey, Region.of(regionKey));
 
             Boolean isAllSuccess = true;
@@ -105,6 +107,8 @@ public class ResourceService {
 
             // 스캔 후 policy에서 pattern과 groupname으로 찾기.
 
+
+            //
 
             if(scanDescribe != null) {
                 for(Object entity : scanDescribe){
@@ -137,6 +141,62 @@ public class ResourceService {
 
         return !isAllSuccessList.contains(false) ? describeResultDataList : null;
     }
+//    public List<ResourceResultData> startDescribe(ResourceListDto describeIamList) throws Exception {
+//        List<ResourceResultData> describeResultDataList = new ArrayList<>();
+//
+//        for (DescribeIamDto describeIamDto : describeIamList) {
+//            String iamName = describeIamDto.getIam(); // IAM 닉네임
+//
+//            IAM user = iamRepository.findIAMByNickName(iamName);
+//
+//            String accessKey = aes256Util.decrypt(user.getAccessKey());
+//            String secretKey = aes256Util.decrypt(user.getSecretKey());
+//            String regionKey = aes256Util.decrypt(user.getRegion()); // 암호화해서 DB에 들어가기 때문에 복호화 해서 넣어줌.
+//            credentialManager.createCredentials(accessKey, secretKey, Region.of(regionKey));
+//
+//            Boolean isAllSuccess = true;
+//            List<DescribeResult> describeEntityList = new ArrayList<>();
+//
+//            // 스캔 시작
+//            List<?> scanDescribe = groupScanDescribe(describeIamDto);
+//            log.info("scanDescribe : {}", scanDescribe);
+//
+//            // 스캔 후 policy에서 pattern과 groupname으로 찾기.
+//
+//
+//            //
+//
+//            if(scanDescribe != null) {
+//                for(Object entity : scanDescribe){
+//                    if(entity instanceof DescribeResult describeEntity){
+//                        describeEntity.setIam(user); // IAM 정보 설정
+//                        describeEntityList.add(describeEntity);
+//                    } else{
+//                        isAllSuccess = false;
+//                    }
+//                }
+//            }
+//            else {
+//                isAllSuccess = false;
+//            }
+//            log.info("isAllSuccess : {}", isAllSuccess);
+//
+//            // ResourceResultData 객체를 생성
+//
+////            describeResultDataList.add(
+////                    ResourceResultData.of(isAllSuccess, describeEntityList));
+//        }
+//        log.info("describe result: {}", describeResultDataList);
+//
+//        List<Boolean> isAllSuccessList = new ArrayList<>();
+//        for (ResourceResultData resultData : describeResultDataList) {
+//            // ResourceResult에 저장.
+//            resourceRepository.saveAll(resultData.getDescribeEntityList());
+//            isAllSuccessList.add(resultData.getIsAllSuccess());
+//        }
+//
+//        return !isAllSuccessList.contains(false) ? describeResultDataList : null;
+//    }
 
     /**
      * 스캔하는 로직
