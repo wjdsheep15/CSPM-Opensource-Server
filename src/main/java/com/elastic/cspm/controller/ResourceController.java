@@ -73,9 +73,11 @@ public class ResourceController {
     public ResponseEntity<IAMScanGroupResponseDto> getIAMAndScanGroupNames() {
         // IAM Nicknames 가져오기
         List<String> iamNicknames = iamService.getIAMNicknames();
+        log.info("iamNicknames: {}", iamNicknames);
 
         // ScanGroup Names 가져오기
         List<String> scanGroups = scanGroupService.getScanGroup();
+        log.info("scanGroups: {}", scanGroups);
 
 
         // 두 리스트를 하나의 DTO에 담기
@@ -93,6 +95,7 @@ public class ResourceController {
     @PostMapping("/start-scan-list")
     public ResponseEntity<Map<String, Object>> getResourcesAndStartScan(@RequestBody CombinedRequestDto combinedRequestDto) throws Exception {
         log.info("스캔 시작");
+        // iam과 group 선택하지 않으면 에러가 발생.
         List<ResourceResultData> resourceResultData = resourceService.startDescribe(combinedRequestDto.getDescribeIamList());
         log.info("ResourceResultData!!: {}", resourceResultData);
 
