@@ -33,7 +33,6 @@ public class RefreshService {
         String refresh = null;
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
-
             if (cookie.getName().equals("refresh")) {
 
                 refresh = cookie.getValue();
@@ -41,7 +40,6 @@ public class RefreshService {
         }
 
         if (refresh == null) {
-
             //response status code
             return new ResponseEntity<>("refresh token null", HttpStatus.BAD_REQUEST); //400
         }
