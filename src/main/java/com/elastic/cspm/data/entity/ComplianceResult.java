@@ -1,7 +1,9 @@
 package com.elastic.cspm.data.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -12,6 +14,7 @@ import static jakarta.persistence.FetchType.*;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 @Table(name = "ComplianceResult")
 public class ComplianceResult {
     @Id
@@ -36,4 +39,12 @@ public class ComplianceResult {
     @JoinColumn(name = "policyTitle")
     private Policy policy;
 
+
+    public ComplianceResult(LocalDateTime scanTime, boolean status, String resourceId, IAM iam, Policy policy) {
+        this.scanTime = scanTime;
+        this.status = status;
+        this.resourceId = resourceId;
+        this.iam = iam;
+        this.policy = policy;
+    }
 }
