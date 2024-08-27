@@ -3,6 +3,7 @@ package com.elastic.cspm.controller;
 import com.elastic.cspm.data.dto.IamAddDto;
 import com.elastic.cspm.data.dto.IamSelectDto;
 import com.elastic.cspm.data.dto.InfoResponseDto;
+import com.elastic.cspm.service.AccountService;
 import com.elastic.cspm.service.IamService;
 import com.elastic.cspm.service.RefreshService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +22,8 @@ import java.util.Map;
 public class IamsettingController {
     private final IamService iamService;
     private final RefreshService refreshService;
+    private final AccountService accountService;
+
     @PostMapping("/add")
     public ResponseEntity<Map<String, String>> add(@Valid @RequestBody IamAddDto iamAddDto, HttpServletRequest request){
         String email = refreshService.getEmail(request);
@@ -52,6 +55,23 @@ public class IamsettingController {
             return ResponseEntity.status(HttpStatus.CONFLICT).build(); // 409 Conflict 중복
         }
     }
+    @PutMapping("/password/{password}")
+    public ResponseEntity<Map<String, String>> updatePassword(HttpServletRequest request, @PathVariable String password){
+        String email = refreshService.getEmail(request);
+
+        if(email == null || email.isEmpty()){
+            return ResponseEntity.badRequest().build();
+        }
+
+        boolean result = accountService.upDatePassword(email, password);
+
+        if (!result){
+            //email을 찾지 못해 비밀번호가 업데이트 되지 않은 경우
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("result","email not found"));
+        }
+        return ResponseEntity.ok(Map.of("result","Success"));
+    }
+
     @DeleteMapping
     public ResponseEntity<Void> deleteIam(@RequestBody List<IamSelectDto> iamSelectDtoList){
         return iamService.iamDelete(iamSelectDtoList);
