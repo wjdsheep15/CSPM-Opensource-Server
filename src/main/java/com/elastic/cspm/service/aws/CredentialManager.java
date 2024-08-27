@@ -1,12 +1,18 @@
 package com.elastic.cspm.service.aws;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.s3.S3Client;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CredentialManager {
@@ -15,7 +21,7 @@ public class CredentialManager {
     /**
      * task : Credentials 생성
      */
-    public void createCredentials(Region region, String accessKey, String secretKey) {
+    public void createCredentials(String accessKey, String secretKey, Region region) {
         credentialsInfo = new CredentialInfo(AwsBasicCredentials.create(accessKey, secretKey), region);
     }
 
