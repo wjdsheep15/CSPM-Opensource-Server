@@ -6,7 +6,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
 public class GraphScanDto {
     private String category;
     private Integer count;

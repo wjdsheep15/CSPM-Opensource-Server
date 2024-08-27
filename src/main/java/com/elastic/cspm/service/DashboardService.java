@@ -4,9 +4,11 @@ import com.elastic.cspm.data.dto.GraphScanDto;
 import com.elastic.cspm.data.dto.ResponseScanGroupDto;
 import com.elastic.cspm.data.dto.ScanGroupDto;
 import com.elastic.cspm.data.entity.BridgeEntity;
+import com.elastic.cspm.data.entity.DescribeResult;
 import com.elastic.cspm.data.entity.Member;
 import com.elastic.cspm.data.entity.ScanGroup;
 import com.elastic.cspm.data.repository.BridgeEntityRepository;
+import com.elastic.cspm.data.repository.DescribeResultRepository;
 import com.elastic.cspm.data.repository.MemberRepository;
 import com.elastic.cspm.data.repository.ScanGroupRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +16,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static com.elastic.cspm.utils.GroupColor.GrouColor.COLOR1;
 
 @Slf4j
 @Service
@@ -25,6 +32,7 @@ public class DashboardService {
     private final MemberRepository memberRepository;
     private final ScanGroupRepository scanGroupRepository;
     private final BridgeEntityRepository bridgeEntityRepository;
+    private final DescribeResultRepository describeResultRepository;
 
     public List<ScanGroupDto> getScanGroup(String email){
 
@@ -102,13 +110,66 @@ public class DashboardService {
         return true;
     }
 
+
     public List<GraphScanDto> getScanGraphData(String groupName) {
+
         ScanGroup scanGroup = scanGroupRepository.findByResourceGroupName(groupName).orElse(null);
         if(scanGroup == null){
             return null;
         }
-        List<GraphScanDto> graphScanDtos = new ArrayList<>();
-        return graphScanDtos;
+
+        DescribeResult describeResult =  describeResultRepository.findTopByScanGroupOrderByIdDesc(groupName).orElse(null);
+        if(describeResult == null){
+           return null;
+        }
+
+        LocalDateTime lastScanTime = describeResult.getScanTime();
+        List<DescribeResult> describeResultList = describeResultRepository.findAllByScanGroupAndScanTime(groupName, lastScanTime).orElse(null);
+        if(describeResultList == null){
+            return null;
+        };
+
+        Map<String, Integer> groupCount = new HashMap<>();
+        List<GraphScanDto> graphScanDtosList = new ArrayList<>();
+
+        Map<String, String> colorMap = new HashMap<>();
+        colorMap.put("VPC", "hsl(50, 70%, 50%)");
+        colorMap.put("Subnet", "hsl(100, 70%, 50%");
+        colorMap.put("RouteTable", "hsl(150, 70%, 50%)");
+        colorMap.put("InternetGateway", "hsl(200, 70%, 50%)");
+        colorMap.put("Instance", "hsl(250, 70%, 50%)");
+        colorMap.put("EBS", "hsl(300, 70%, 50%)");
+        colorMap.put("S3", "hsl(50, 20%, 70%)");
+        colorMap.put("SecurityGroup", "hsl(150, 20%, 70%");
+        colorMap.put("IAM", "hsl(250, 20%, 70%)");
+        colorMap.put("RDS", "hsl(200, 20%, 70%)");
+        colorMap.put("ENI", "hsl(300, 20%, 70%)");
+
+        describeResultList.forEach(entity -> countScanGraphData(groupCount, entity));
+        groupCount.forEach((key, value)-> {
+            GraphScanDto graphScanDto = new GraphScanDto();
+            graphScanDto.setCategory(key);
+            graphScanDto.setCount(value);
+            graphScanDto.setCountColor(colorMap.getOrDefault(key, "hsl(0, 0%, 50%)"));
+            graphScanDtosList.add(graphScanDto);
+        });
+
+        return graphScanDtosList;
+    }
+
+    public void countScanGraphData(Map<String, Integer> groupCount, DescribeResult describeResult) {
+
+        /**
+         * task: getScanGroup이 아닌 resource로 변경
+         */
+      String resource = describeResult.getScanGroup();
+      if(groupCount.containsKey(resource)){
+         int count =  groupCount.get(resource);
+         groupCount.put(resource, ++count);
+      }else{
+          groupCount.put(resource, 1);
+      }
+
     }
 
 }

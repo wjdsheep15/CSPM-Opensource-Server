@@ -76,10 +76,15 @@ public class DashboardController {
         }
     }
 
+    /**
+     * 스캔 그룹 데이터 보내기
+     * @param groupName
+     * @return
+     */
     @GetMapping("/graph/{groupName}")
     public ResponseEntity<List<GraphScanDto>> getGroupGraph(@PathVariable String groupName){
         List<GraphScanDto> graphScanDtosList = dashboardService.getScanGraphData(groupName);
-        if (graphScanDtosList.isEmpty()){
+        if (graphScanDtosList ==null || graphScanDtosList.isEmpty()){
             return ResponseEntity.status(404).build();
         }
         return ResponseEntity.ok(graphScanDtosList);
