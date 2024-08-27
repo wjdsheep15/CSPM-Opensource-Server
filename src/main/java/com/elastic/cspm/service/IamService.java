@@ -27,6 +27,7 @@ import software.amazon.awssdk.services.sts.model.GetCallerIdentityRequest;
 import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 @Slf4j
 @Service
@@ -115,17 +116,20 @@ public class IamService {
         }
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public boolean iamDelete(List<IamSelectDto> iamSelectDtoList){
+        try{
+            for(IamSelectDto iamSelectDto: iamSelectDtoList){
+                IAM iam = iamRepository.findIAMByNickName(iamSelectDto.getNickname());
 
-    public ResponseEntity<Void> iamDelete(List<IamSelectDto> iamSelectDtoList){
-        for(IamSelectDto selectDto: iamSelectDtoList){
-            IAM iam = iamRepository.findIAMByNickName(selectDto.getNickname());
-
-            if(iam == null){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }else {
                 iamRepository.delete(iam);
+
             }
+            return true;
+
+        }catch (Exception e){
+            log.error("IAM 삭제 실패: " + e.getMessage());
+            return false;
         }
-        return ResponseEntity.ok().build();
     }
 }
