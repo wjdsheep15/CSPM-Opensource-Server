@@ -110,7 +110,7 @@ public class ResourceService {
 
             // 스캔 후 policy에서 pattern과 groupname으로 찾기.
             // Policy 의 pattern 에 where 뒷부분으로 = 앞에 있는게 키 뒤가 value
-            findPattern();
+
 
 
             //
@@ -214,6 +214,7 @@ public class ResourceService {
             case "VPC" -> vpcDescribe();
             case "EC2" -> ec2Describe();
             case "S3" -> s3Describe();
+
             default -> throw new IllegalArgumentException("지원되지 않는 스캔 그룹: " + scanGroup);
         };
     }

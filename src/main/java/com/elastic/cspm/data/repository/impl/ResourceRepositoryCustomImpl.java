@@ -3,6 +3,7 @@ package com.elastic.cspm.data.repository.impl;
 import com.elastic.cspm.data.dto.QResourceDto;
 import com.elastic.cspm.data.dto.ResourceFilterRequestDto;
 import com.elastic.cspm.data.repository.ResourceRepositoryCustom;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
