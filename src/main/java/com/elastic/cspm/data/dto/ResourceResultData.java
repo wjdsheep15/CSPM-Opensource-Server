@@ -12,11 +12,11 @@ import java.util.List;
 @Setter
 @Builder
 public class ResourceResultData {
-    LocalDateTime scanTime;
-    String resourceId;
-    String scanTarget;
-    Boolean isAllSuccess;
-    List<DescribeResult> describeEntityList;
+    private LocalDateTime scanTime;
+    private String resourceId;
+    private String scanTarget;
+    private Boolean isAllSuccess;
+    private List<DescribeResult> describeEntityList; // 스캔 결과 리스트
 
     public static ResourceResultData of(LocalDateTime scanTime, String resourceId, String scanTarget, Boolean isSuccess, List<DescribeResult> describeEntityList) {
         return ResourceResultData.builder()

@@ -43,13 +43,13 @@ public class ResourceRepositoryCustomImpl implements ResourceRepositoryCustom {
     public Page<QResourceDto> findResourceList(Pageable pageable, ResourceFilterRequestDto resourceFilterDto) {
         // 필터링 요청 보낸 로그
         log.info("Searching resources - IAM : {}, ScanGroup : {}, Page : {}",
-                resourceFilterDto.getIam(), resourceFilterDto.getScanGroup(), pageable);
+                resourceFilterDto.getIam(), resourceFilterDto.getGroupName(), pageable);
 
         // 필터링 쿼리 + 페이징
         List<QResourceDto> content = createResourceDtoQuery()
                 .where(
                         iAMEq(resourceFilterDto.getIam()),
-                        scanGroupEq(resourceFilterDto.getScanGroup())
+                        scanGroupEq(resourceFilterDto.getGroupName())
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
