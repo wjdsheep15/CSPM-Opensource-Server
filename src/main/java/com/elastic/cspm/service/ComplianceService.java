@@ -26,14 +26,12 @@ public class ComplianceService {
     public void complianceScan(String iamNickName, String groupName) {
 
         IAM iam = iamRepository.findIAMByNickName(iamNickName);
-
         /** describe result에서 특정 IAM의, Resource TargetList 불러오는 메소드 */
         //List<String> scanTargetList = getScanTargetList(iam, groupName);
         List<DescribeResult> describeResultList = describeResultRepository.findByIamAndGroupName(iam,groupName);
 
         /** 취약점 패턴 가져 오는 메소드 패턴들의 대한 값들 그룹*/
         List<Policy> policyList = policyRepository.findByResourceName(groupName);
-
         /**쿼리 DSL을 통해 Pattern과 ScanTarget 값을 비교해서 ComplianceResult에 저장하는 메소드*/
         complianceResultRepository.saveComplianceResultsFromDescribeAndPolicy(iam, describeResultList, policyList);
 

@@ -9,6 +9,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class ComplianceResultRepositoryCustomImpl implements ComplianceResultRepositoryCustom {
 
     @PersistenceContext
@@ -29,7 +31,8 @@ public class ComplianceResultRepositoryCustomImpl implements ComplianceResultRep
 
         for (DescribeResult describeResult : describeResults) {
             for (Policy policy : policies) {
-                if (describeResult.getScanTarget().contains(policy.getPattern())) {
+                if (policy.getPattern().contains(describeResult.getScanTarget())) {
+
                     ComplianceResult complianceResult = new ComplianceResult();
                     complianceResult.setScanTime(LocalDateTime.now());
                     complianceResult.setStatus(false);  // 기본값으로 false 설정 (필요에 따라 변경)
