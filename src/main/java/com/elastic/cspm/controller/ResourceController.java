@@ -3,8 +3,11 @@ package com.elastic.cspm.controller;
 import com.elastic.cspm.data.dto.*;
 import com.elastic.cspm.data.repository.ScanGroupRepository;
 import com.elastic.cspm.service.IamService;
+import com.elastic.cspm.service.RefreshService;
 import com.elastic.cspm.service.ResourceService;
 import com.elastic.cspm.service.ScanGroupService;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +28,7 @@ public class ResourceController {
     private final IamService iamService;
     private final ScanGroupService scanGroupService;
     private final ScanGroupRepository groupRepository;
+    private final RefreshService refreshService;
 
     /**
      * IAM 선택 API
@@ -70,9 +74,16 @@ public class ResourceController {
      * 이렇게 한다면 IamSelectDto, ScanGroupSelectDto 삭제.
      */
     @GetMapping("/iam-scanGroup")
-    public ResponseEntity<IAMScanGroupResponseDto> getIAMAndScanGroupNames() {
+    public ResponseEntity<IAMScanGroupResponseDto> getIAMAndScanGroupNames(HttpServletRequest request) {
+
+        String email = refreshService.getEmail(request);
+
+        if(email == null || email.isEmpty()){
+            return ResponseEntity.badRequest().build();
+        }
+
         // IAM Nicknames 가져오기
-        List<String> iamNicknames = iamService.getIAMNicknames();
+        List<String> iamNicknames = iamService.getIAMNicknames(email);
         log.info("iamNicknames: {}", iamNicknames);
 
         // ScanGroup Names 가져오기

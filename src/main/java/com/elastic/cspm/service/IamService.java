@@ -26,6 +26,7 @@ import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.GetCallerIdentityRequest;
 import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -37,11 +38,11 @@ public class IamService {
     private final AES256 aes256;
     private final MemberRepository memberRepository;
 
-    public List<String> getIAMNicknames() {
-        return iamRepository.findAll()
-                .stream()
+    public List<String> getIAMNicknames(String email) {
+
+        return iamRepository.findAllByMemberEmail(email).stream()
                 .map(IAM::getNickName)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public InfoResponseDto validationIam(String accessKey, String secretKey, String region) {
