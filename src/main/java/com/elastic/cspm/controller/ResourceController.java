@@ -1,7 +1,9 @@
 package com.elastic.cspm.controller;
 
-import com.elastic.cspm.data.dto.*;
-import com.elastic.cspm.data.repository.ScanGroupRepository;
+import com.elastic.cspm.data.dto.IAMScanGroupResponseDto;
+import com.elastic.cspm.data.dto.ResourceFilterRequestDto;
+import com.elastic.cspm.data.dto.ResourceResultData;
+import com.elastic.cspm.data.dto.ResourceResultResponseDto;
 import com.elastic.cspm.service.IamService;
 import com.elastic.cspm.service.RefreshService;
 import com.elastic.cspm.service.ResourceService;
@@ -12,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.elastic.cspm.data.dto.ResourceResultResponseDto.ResourceListDto;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,25 +28,6 @@ public class ResourceController {
     private final IamService iamService;
     private final ScanGroupService scanGroupService;
     private final RefreshService refreshService;
-
-    /**
-     * IAM 선택 API
-     * IAM 레포지토리에서 프론트로 보낼 API가 존재해야 함.
-     * 필요한 이유 : IAM에서의 셀렉트 박스는 IAM에 따라 값이 달라지기 때문에.
-     */
-//    @GetMapping("/iam")
-//    public ResponseEntity<List<IamSelectDto>> getIAMName() {
-//        List<String> iamNicknames = iamService.getIAMNicknames();
-//        List<IamSelectDto> iamList = iamNicknames.stream()
-//                .map(nickname -> {
-//                    IamSelectDto dto = new IamSelectDto();
-//                    dto.setNickname(nickname);
-//                    return dto;
-//                })
-//                .collect(Collectors.toList());
-//
-//        return ResponseEntity.ok(iamList);
-//    }
 
     /**
      * ScanGroup 선택 API
@@ -101,46 +83,31 @@ public class ResourceController {
      * 스캔 시작 로직 진행 후 IAM 선택과 scanGroup을 필터링하여 조회.
      */
     @PostMapping("/start-scan-list")
-    public ResponseEntity<Map<String, Object>> getResourcesAndStartScan(@RequestBody CombinedRequestDto combinedRequestDto) throws Exception {
+    public ResponseEntity<Map<String, Object>> getResourcesAndStartScan(@RequestBody ResourceFilterRequestDto resourceFilterRequestDto) throws Exception {
         log.info("스캔 시작");
+
+        if (resourceFilterRequestDto == null) {
+            throw new IllegalArgumentException("IAM과 그룹을 선택해야 합니다.");
+        }
+
         // iam과 group 선택하지 않으면 에러가 발생.
-        List<ResourceResultData> resourceResultData = resourceService.startDescribe(combinedRequestDto.getDescribeIamList());
+        List<ResourceResultData> resourceResultData = resourceService.startDescribe(resourceFilterRequestDto);
         log.info("ResourceResultData!!: {}", resourceResultData);
+        log.info("스캔 끝");
 
-        log.info("IAM : {}, GroupScan : {}", combinedRequestDto.getResourceFilterDto().getIam(), combinedRequestDto.getResourceFilterDto().getScanGroup());
-        log.info("pIndex : {}, pSize : {}", combinedRequestDto.getResourceFilterDto().getPageIndex(), combinedRequestDto.getResourceFilterDto().getPageSize());
-
-        ResourceListDto allResources = resourceService.getAllResources(combinedRequestDto.getResourceFilterDto());
+        // 필터링 리스트 조회
+        // 조회하는 부분 엔티티 추가돼서 쿼리 수정 필요.
+        ResourceResultResponseDto.ResourceListDto allResources = resourceService.getAllResources(resourceFilterRequestDto);
 
         Map<String, Object> response = new HashMap<>();
         response.put("resourceResultData", resourceResultData);
         response.put("allResources", allResources);
 
+        log.info("resourceResultData : {}", resourceResultData);
+        log.info("allResources : {}", allResources);
         log.info("response : {}", response.size());
+
 
         return ResponseEntity.ok(response);
     }
-//    @GetMapping("/list")
-//    public ResponseEntity<ResourceListDto> getResources(@RequestBody ResourceFilterRequestDto resourceFilterDto) throws Exception {
-//        log.info("IAM : {}, GroupScan : {}", resourceFilterDto.getIam(), resourceFilterDto.getScanGroup());
-//        log.info("pIndex : {}, pSize : {}", resourceFilterDto.getPageIndex(), resourceFilterDto.getPageSize());
-//
-//        ResourceListDto allResources = resourceService.getAllResources(resourceFilterDto);
-//        return ResponseEntity.ok(allResources);
-//    }
-
-    /**
-     * IAM 선택과 scanGroup을 필터링하여 조회하고 스캔 시작하는 API
-     */
-//    @PostMapping("/startScan")
-//    public ResponseEntity<List<ResourceResultData>> saveDescribe(@RequestBody List<DescribeIamDto> describeIamList) throws Exception {
-//        log.info("스캔 시작");
-//        List<ResourceResultData> resourceResultData = resourceService.startDescribe(describeIamList);
-//
-//        return ResponseEntity.ok(resourceResultData);
-//    }
-
-    /**
-     * 스캔 시작 후 resource와 service 필터
-     */
 }
