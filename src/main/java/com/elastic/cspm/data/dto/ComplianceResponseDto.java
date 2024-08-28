@@ -1,10 +1,7 @@
 package com.elastic.cspm.data.dto;
 
 
-import com.elastic.cspm.data.entity.ComplianceResult;
-import com.elastic.cspm.data.entity.Member;
-import com.elastic.cspm.data.entity.Policy;
-import com.elastic.cspm.data.entity.ScanGroup;
+import com.elastic.cspm.data.entity.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,13 +23,13 @@ public class ComplianceResponseDto {
     private String policyTitle;
 
 
-    public static ComplianceResponseDto of(ComplianceResult complianceResult, Member member, Policy policy) {
+    public static ComplianceResponseDto of(ComplianceResult complianceResult, IAM iam) {
         return new ComplianceResponseDto(
                 complianceResult.getScanTime(),
-                member.getAccountId(),
-                member.getIamName(),
-                policy.getSeverity(),
-                policy.getPolicyTitle()
+                iam.getId().toString(),
+                iam.getNickName(),
+                complianceResult.getPolicy().getSeverity(),
+                complianceResult.getPolicy().getPolicyTitle()
         );
     }
 

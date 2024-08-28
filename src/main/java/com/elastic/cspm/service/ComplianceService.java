@@ -5,10 +5,6 @@ import com.elastic.cspm.data.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -23,11 +19,10 @@ public class ComplianceService {
     private final PolicyRepository policyRepository;
 
 
-    public void complianceScan(String iamNickName, String groupName) {
+    public List<ComplianceResult> complianceScan(String iamNickName, String groupName) {
 
         IAM iam = iamRepository.findIAMByNickName(iamNickName);
         /** describe result에서 특정 IAM의, Resource TargetList 불러오는 메소드 */
-        //List<String> scanTargetList = getScanTargetList(iam, groupName);
         List<DescribeResult> describeResultList = describeResultRepository.findByIamAndGroupName(iam,groupName);
 
         /** 취약점 패턴 가져 오는 메소드 패턴들의 대한 값들 그룹*/
@@ -35,7 +30,8 @@ public class ComplianceService {
         /**쿼리 DSL을 통해 Pattern과 ScanTarget 값을 비교해서 ComplianceResult에 저장하는 메소드*/
         complianceResultRepository.saveComplianceResultsFromDescribeAndPolicy(iam, describeResultList, policyList);
 
-
+        List<ComplianceResult> complianceResult = complianceResultRepository.findAll();
+        return complianceResult;
     }
 
 

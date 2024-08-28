@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface ComplianceResultRepository extends JpaRepository<ComplianceResult, Long>, ComplianceResultRepositoryCustom {
 
     Optional<List<ComplianceResult>> findDistinctTop10ByOrderByScanTimeDesc();
+
 }
