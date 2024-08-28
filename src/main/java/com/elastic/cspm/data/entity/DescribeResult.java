@@ -3,8 +3,11 @@ package com.elastic.cspm.data.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import software.amazon.awssdk.services.ec2.model.VolumeAttachment;
+import software.amazon.awssdk.services.ec2.model.VolumeState;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static jakarta.persistence.FetchType.LAZY;
 
@@ -28,7 +31,7 @@ public class DescribeResult {
     private String scanTarget; // resource로 스캔 대상
 
     @Column(name = "group_name", nullable = false)
-    private String groupName; // groupName
+    private String groupName;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "iam_id")

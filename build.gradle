@@ -59,6 +59,7 @@ dependencies {
 	implementation 'software.amazon.awssdk:iam:2.25.31'
 	implementation 'software.amazon.awssdk:ssm:2.25.31'
 	implementation 'software.amazon.awssdk:s3:2.13.0'
+	implementation 'software.amazon.awssdk:rds'
 
 	// AWS Parameter Store
 	implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.1.0")

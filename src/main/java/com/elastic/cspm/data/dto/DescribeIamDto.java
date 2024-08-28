@@ -16,5 +16,5 @@ public class DescribeIamDto {
     private String iam;
 
     @Schema(description = "Group 선택", nullable = false)
-    private String scanGroup;
+    private String groupName;
 }

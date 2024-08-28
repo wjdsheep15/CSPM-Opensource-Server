@@ -3,6 +3,7 @@ package com.elastic.cspm.data.repository.impl;
 import com.elastic.cspm.data.dto.QResourceDto;
 import com.elastic.cspm.data.dto.ResourceFilterRequestDto;
 import com.elastic.cspm.data.repository.ResourceRepositoryCustom;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -42,13 +43,13 @@ public class ResourceRepositoryCustomImpl implements ResourceRepositoryCustom {
     public Page<QResourceDto> findResourceList(Pageable pageable, ResourceFilterRequestDto resourceFilterDto) {
         // 필터링 요청 보낸 로그
         log.info("Searching resources - IAM : {}, ScanGroup : {}, Page : {}",
-                resourceFilterDto.getIam(), resourceFilterDto.getScanGroup(), pageable);
+                resourceFilterDto.getIam(), resourceFilterDto.getGroupName(), pageable);
 
         // 필터링 쿼리 + 페이징
         List<QResourceDto> content = createResourceDtoQuery()
                 .where(
                         iAMEq(resourceFilterDto.getIam()),
-                        scanGroupEq(resourceFilterDto.getScanGroup())
+                        scanGroupEq(resourceFilterDto.getGroupName())
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

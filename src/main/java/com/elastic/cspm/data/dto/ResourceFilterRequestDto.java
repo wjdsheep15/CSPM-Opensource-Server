@@ -13,13 +13,13 @@ import lombok.Setter;
 @Setter
 public class ResourceFilterRequestDto {
     private String iam;
-    private String scanGroup;
+    private String groupName;
     private int pageIndex;
     private int pageSize;
 
-    public ResourceFilterRequestDto(String iam, String scanGroup, int pageIndex, int pageSize) {
+    public ResourceFilterRequestDto(String iam, String groupName, int pageIndex, int pageSize) {
         this.iam = iam;
-        this.scanGroup = scanGroup;
+        this.groupName = groupName;
         this.pageIndex = pageIndex;
         this.pageSize = pageSize;
     }
