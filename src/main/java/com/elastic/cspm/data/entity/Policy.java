@@ -35,7 +35,7 @@ public class Policy {
     private String compliance; // 취약점 정책
 
     @Column(name = "resource_name", nullable = false)
-    private String resourceName; // groupName
+    private String resourceName; // resourceName
 
     @OneToMany(mappedBy = "policy")
     private List<ComplianceResult> complianceResults;

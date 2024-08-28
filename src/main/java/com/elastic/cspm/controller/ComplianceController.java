@@ -18,16 +18,8 @@ public class ComplianceController {
 
     private final ComplianceService complianceService;
 
-
     @GetMapping("/{iamNickName}/{groupName}")
     public void complianceScan(@PathVariable  String iamNickName, @PathVariable String groupName){
         complianceService.complianceScan(iamNickName,groupName);
     }
-//
-//
-//    // 취약점 검사할 Scan Data 불러오기
-//    public List<String> getScanTargetList(String iamNickname,String groupName) {
-//        List<String> scanTargetList = complianceService.getScanTargetList(iamNickname,groupName);
-//        return scanTargetList;
-//    }
 }

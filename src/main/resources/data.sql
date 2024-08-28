@@ -1,3 +1,4 @@
+
 INSERT INTO oscspm.policy (
     policy_title,
     category,
@@ -6,7 +7,7 @@ INSERT INTO oscspm.policy (
     description,
     response,
     pattern,
-    group_name
+    resource_name
 )
 VALUES
     (

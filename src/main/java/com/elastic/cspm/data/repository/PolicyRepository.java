@@ -5,7 +5,9 @@ import com.elastic.cspm.data.entity.Member;
 import com.elastic.cspm.data.entity.Policy;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface PolicyRepository extends JpaRepository<Policy, Long> {
 
-    Policy findByGroupName(String groupName);
+    List<Policy> findByResourceName(String resourceName);
 }
