@@ -27,7 +27,7 @@ public class DashboardService {
     private final ScanGroupRepository scanGroupRepository;
     private final BridgeEntityRepository bridgeEntityRepository;
     private final DescribeResultRepository describeResultRepository;
-    private final ComplianceRepository complianceRepository;
+    private final ComplianceResultRepository complianceRepository;
 
     public List<ScanGroupDto> getScanGroup(String email){
 
