@@ -1,16 +1,11 @@
 package com.elastic.cspm.service;
 
+import com.elastic.cspm.data.dto.GrapComplianceDto;
 import com.elastic.cspm.data.dto.GraphScanDto;
 import com.elastic.cspm.data.dto.ResponseScanGroupDto;
 import com.elastic.cspm.data.dto.ScanGroupDto;
-import com.elastic.cspm.data.entity.BridgeEntity;
-import com.elastic.cspm.data.entity.DescribeResult;
-import com.elastic.cspm.data.entity.Member;
-import com.elastic.cspm.data.entity.ScanGroup;
-import com.elastic.cspm.data.repository.BridgeEntityRepository;
-import com.elastic.cspm.data.repository.DescribeResultRepository;
-import com.elastic.cspm.data.repository.MemberRepository;
-import com.elastic.cspm.data.repository.ScanGroupRepository;
+import com.elastic.cspm.data.entity.*;
+import com.elastic.cspm.data.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,6 +27,7 @@ public class DashboardService {
     private final ScanGroupRepository scanGroupRepository;
     private final BridgeEntityRepository bridgeEntityRepository;
     private final DescribeResultRepository describeResultRepository;
+    private final ComplianceRepository complianceRepository;
 
     public List<ScanGroupDto> getScanGroup(String email){
 
@@ -112,19 +108,22 @@ public class DashboardService {
 
     public List<GraphScanDto> getScanGraphData(String groupName) {
 
-        ScanGroup scanGroup = scanGroupRepository.findByResourceGroupName(groupName).orElse(null);
-        if(scanGroup == null){
-            return null;
-        }
 
-        DescribeResult describeResult =  describeResultRepository.findTopByScanGroupOrderByIdDesc(groupName).orElse(null);
+        if(groupName.equals("추가하기")){
+            groupName = "default";
+        }
+        DescribeResult describeResult =  describeResultRepository.findFirstByGroupNameOrderByScanTimeDesc(groupName).orElse(null);
         if(describeResult == null){
+            log.info("describeResult is null");
            return null;
         }
 
         LocalDateTime lastScanTime = describeResult.getScanTime();
-        List<DescribeResult> describeResultList = describeResultRepository.findAllByScanGroupAndScanTime(groupName, lastScanTime).orElse(null);
+        log.info(groupName + ", " + lastScanTime);
+
+        List<DescribeResult> describeResultList = describeResultRepository.findAllByGroupNameAndScanTime(groupName, lastScanTime).orElse(null);
         if(describeResultList == null){
+            log.info("describeResultList is null");
             return null;
         };
 
@@ -153,6 +152,7 @@ public class DashboardService {
             graphScanDtosList.add(graphScanDto);
         });
 
+        log.info("정상적으로 실행이됨" + graphScanDtosList.size());
         return graphScanDtosList;
     }
 
@@ -161,7 +161,7 @@ public class DashboardService {
         /**
          * task: getScanGroup이 아닌 resource로 변경
          */
-      String resource = describeResult.getScanGroup();
+      String resource = describeResult.getGroupName();
       if(groupCount.containsKey(resource)){
          int count =  groupCount.get(resource);
          groupCount.put(resource, ++count);
@@ -169,6 +169,16 @@ public class DashboardService {
           groupCount.put(resource, 1);
       }
 
+    }
+
+    public List<GrapComplianceDto> getGraphComplianceData(String section) {
+        List<GrapComplianceDto> graphComplianceDtoList = new ArrayList<>();
+        List<ComplianceResult> complianceResults  =  complianceRepository.findDistinctTop10ByOrderByScanTimeDesc().orElse(null);
+        if(complianceResults == null){
+            log.info("complianceResults is null");
+            return null;
+        }
+        return null;
     }
 
 }
