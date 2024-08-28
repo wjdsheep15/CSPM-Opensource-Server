@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 public class ResourceController {
     private final ResourceService resourceService;
     private final IamService iamService;
-    private final ScanGroupService scanGroupService;
     private final ScanGroupRepository groupRepository;
 
     /**
@@ -31,62 +30,42 @@ public class ResourceController {
      * IAM 레포지토리에서 프론트로 보낼 API가 존재해야 함.
      * 필요한 이유 : IAM에서의 셀렉트 박스는 IAM에 따라 값이 달라지기 때문에.
      */
-//    @GetMapping("/iam")
-//    public ResponseEntity<List<IamSelectDto>> getIAMName() {
-//        List<String> iamNicknames = iamService.getIAMNicknames();
-//        List<IamSelectDto> iamList = iamNicknames.stream()
-//                .map(nickname -> {
-//                    IamSelectDto dto = new IamSelectDto();
-//                    dto.setNickname(nickname);
-//                    return dto;
-//                })
-//                .collect(Collectors.toList());
-//
-//        return ResponseEntity.ok(iamList);
-//    }
+    @GetMapping("/iam")
+    public ResponseEntity<List<IamSelectDto>> getIAMName() {
+        List<String> iamNicknames = iamService.getIAMNicknames();
+        List<IamSelectDto> iamList = iamNicknames.stream()
+                .map(nickname -> {
+                    IamSelectDto dto = new IamSelectDto();
+                    dto.setNickname(nickname);
+                    return dto;
+                })
+                .collect(Collectors.toList());
 
-    /**
-     * ScanGroup 선택 API
-     */
-//    @GetMapping("/scanGroup")
-//    public ResponseEntity<List<ScanGroupSelectDto>> getScanGroupName() {
-//        List<String> group = scanGroupService.getScanGroup();
-//        List<ScanGroupSelectDto> iamList = group.stream()
-//                .map(scanGroup -> {
-//                    ScanGroupSelectDto dto = new ScanGroupSelectDto();
-//                    dto.setScanGroup(scanGroup);
-//                    return dto;
-//                })
-//                .collect(Collectors.toList());
-//
-//        log.info("group : {}", group);
-//        log.info("scanGroup : {}", iamList);
-//
-//        return ResponseEntity.ok(iamList);
-//    }
+        return ResponseEntity.ok(iamList);
+    }
 
     /**
      * IAM 선택과 ScanGroup을 같은 API에.
      * 이렇게 한다면 IamSelectDto, ScanGroupSelectDto 삭제.
      */
-    @GetMapping("/iam-scanGroup")
-    public ResponseEntity<IAMScanGroupResponseDto> getIAMAndScanGroupNames() {
-        // IAM Nicknames 가져오기
-        List<String> iamNicknames = iamService.getIAMNicknames();
-        log.info("iamNicknames: {}", iamNicknames);
-
-        // ScanGroup Names 가져오기
-        List<String> scanGroups = scanGroupService.getScanGroup();
-        log.info("scanGroups: {}", scanGroups);
-
-
-        // 두 리스트를 하나의 DTO에 담기
-        IAMScanGroupResponseDto responseDto = new IAMScanGroupResponseDto();
-        responseDto.setIamList(iamNicknames);
-        responseDto.setScanGroupList(scanGroups);
-
-        return ResponseEntity.ok(responseDto);
-    }
+//    @GetMapping("/iam-scanGroup")
+//    public ResponseEntity<IAMScanGroupResponseDto> getIAMAndScanGroupNames() {
+//        // IAM Nicknames 가져오기
+//        List<String> iamNicknames = iamService.getIAMNicknames();
+//        log.info("iamNicknames: {}", iamNicknames);
+//
+//        // ScanGroup Names 가져오기
+//        List<String> scanGroups = scanGroupService.getScanGroup();
+//        log.info("scanGroups: {}", scanGroups);
+//
+//
+//        // 두 리스트를 하나의 DTO에 담기
+//        IAMScanGroupResponseDto responseDto = new IAMScanGroupResponseDto();
+//        responseDto.setIamList(iamNicknames);
+////        responseDto.setScanGroupList(scanGroups);
+//
+//        return ResponseEntity.ok(responseDto);
+//    }
 
 
     /**

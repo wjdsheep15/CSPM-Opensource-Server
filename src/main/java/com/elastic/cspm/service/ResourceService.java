@@ -5,9 +5,7 @@ import com.elastic.cspm.data.dto.ResourceFilterRequestDto;
 import com.elastic.cspm.data.dto.ResourceResultData;
 import com.elastic.cspm.data.entity.DescribeResult;
 import com.elastic.cspm.data.entity.IAM;
-import com.elastic.cspm.data.entity.Policy;
 import com.elastic.cspm.data.repository.IamRepository;
-import com.elastic.cspm.data.repository.PolicyRepository;
 import com.elastic.cspm.data.repository.ResourceRepository;
 import com.elastic.cspm.service.aws.CredentialManager;
 import com.elastic.cspm.utils.AES256;
@@ -21,16 +19,22 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.*;
+import software.amazon.awssdk.services.iam.IamClient;
+import software.amazon.awssdk.services.iam.model.IamException;
+import software.amazon.awssdk.services.iam.model.ListUsersRequest;
+import software.amazon.awssdk.services.iam.model.ListUsersResponse;
+import software.amazon.awssdk.services.iam.model.User;
+import software.amazon.awssdk.services.rds.RdsClient;
+import software.amazon.awssdk.services.rds.model.DescribeDbInstancesRequest;
+import software.amazon.awssdk.services.rds.model.DescribeDbInstancesResponse;
+import software.amazon.awssdk.services.rds.model.RdsException;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.Bucket;
-import software.amazon.awssdk.services.s3.model.ListBucketsRequest;
-import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
-import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.rds.model.DBInstance;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.elastic.cspm.data.dto.ResourceResultResponseDto.ResourceListDto;
 import static com.elastic.cspm.data.dto.ResourceResultResponseDto.ResourceRecordDto;
@@ -43,7 +47,6 @@ public class ResourceService {
     private final IamRepository iamRepository;
     private final AES256 aes256Util;
     private final CredentialManager credentialManager;
-    private final PolicyRepository policyRepository;
 
     // IAM과 Group으로 스캔시간, AccountId, 리소스, 리소스ID, 서비스 조회
     public ResourceListDto getAllResources(ResourceFilterRequestDto resourceFilterDto) throws Exception {
@@ -72,7 +75,6 @@ public class ResourceService {
             );
         } catch (Exception e) {
             log.error(ExceptionUtils.getStackTrace(e));
-//            throw new Exception(String.valueOf(NOT_FOUND));
             throw e;
 
         }
@@ -104,16 +106,10 @@ public class ResourceService {
             Boolean isAllSuccess = true;
             List<DescribeResult> describeEntityList = new ArrayList<>();
 
-            // 스캔 시작
+            // 스캔 시작 + Describe_Result에 저장 완료
             List<?> scanDescribe = groupScanDescribe(describeIamDto);
             log.info("scanDescribe : {}", scanDescribe);
 
-            // 스캔 후 policy에서 pattern과 groupname으로 찾기.
-            // Policy 의 pattern 에 where 뒷부분으로 = 앞에 있는게 키 뒤가 value
-
-
-
-            //
 
             if(scanDescribe != null) {
                 for(Object entity : scanDescribe){
@@ -130,115 +126,54 @@ public class ResourceService {
             }
             log.info("isAllSuccess : {}", isAllSuccess);
 
-            // ResourceResultData 객체를 생성
 
-            describeResultDataList.add(
-                    ResourceResultData.of(isAllSuccess, describeEntityList));
         }
         log.info("describe result: {}", describeResultDataList);
 
-        List<Boolean> isAllSuccessList = new ArrayList<>();
-        for (ResourceResultData resultData : describeResultDataList) {
-            // ResourceResult에 저장.
-            resourceRepository.saveAll(resultData.getDescribeEntityList());
-            isAllSuccessList.add(resultData.getIsAllSuccess());
-        }
 
-        return !isAllSuccessList.contains(false) ? describeResultDataList : null;
     }
-//    public List<ResourceResultData> startDescribe(ResourceListDto describeIamList) throws Exception {
-//        List<ResourceResultData> describeResultDataList = new ArrayList<>();
-//
-//        for (DescribeIamDto describeIamDto : describeIamList) {
-//            String iamName = describeIamDto.getIam(); // IAM 닉네임
-//
-//            IAM user = iamRepository.findIAMByNickName(iamName);
-//
-//            String accessKey = aes256Util.decrypt(user.getAccessKey());
-//            String secretKey = aes256Util.decrypt(user.getSecretKey());
-//            String regionKey = aes256Util.decrypt(user.getRegion()); // 암호화해서 DB에 들어가기 때문에 복호화 해서 넣어줌.
-//            credentialManager.createCredentials(accessKey, secretKey, Region.of(regionKey));
-//
-//            Boolean isAllSuccess = true;
-//            List<DescribeResult> describeEntityList = new ArrayList<>();
-//
-//            // 스캔 시작
-//            List<?> scanDescribe = groupScanDescribe(describeIamDto);
-//            log.info("scanDescribe : {}", scanDescribe);
-//
-//            // 스캔 후 policy에서 pattern과 groupname으로 찾기.
-//
-//
-//            //
-//
-//            if(scanDescribe != null) {
-//                for(Object entity : scanDescribe){
-//                    if(entity instanceof DescribeResult describeEntity){
-//                        describeEntity.setIam(user); // IAM 정보 설정
-//                        describeEntityList.add(describeEntity);
-//                    } else{
-//                        isAllSuccess = false;
-//                    }
-//                }
-//            }
-//            else {
-//                isAllSuccess = false;
-//            }
-//            log.info("isAllSuccess : {}", isAllSuccess);
-//
-//            // ResourceResultData 객체를 생성
-//
-////            describeResultDataList.add(
-////                    ResourceResultData.of(isAllSuccess, describeEntityList));
-//        }
-//        log.info("describe result: {}", describeResultDataList);
-//
-//        List<Boolean> isAllSuccessList = new ArrayList<>();
-//        for (ResourceResultData resultData : describeResultDataList) {
-//            // ResourceResult에 저장.
-//            resourceRepository.saveAll(resultData.getDescribeEntityList());
-//            isAllSuccessList.add(resultData.getIsAllSuccess());
-//        }
-//
-//        return !isAllSuccessList.contains(false) ? describeResultDataList : null;
-//    }
 
     /**
      * 스캔하는 로직
      * 스캔 목적 : EC2Client로 group들 찾기
      */
     private List<?> groupScanDescribe(DescribeIamDto describeIamDto) {
-        String scanGroup = describeIamDto.getScanGroup();
+        String scanGroup = describeIamDto.getGroupName();
         log.info("scanGroup : {}", scanGroup);
         return switch (scanGroup) {
-            case "VPC" -> vpcDescribe();
-            case "EC2" -> ec2Describe();
-            case "S3" -> s3Describe();
+            case "VPC" -> vpcDescribe(describeIamDto);
+            case "EC2" -> ec2Describe(describeIamDto);
+            case "S3" -> s3Describe(describeIamDto);
+            case "Subnet" -> subnetDescribe(describeIamDto);
+            case "RouteTable" -> routeDescribe(describeIamDto);
+            case "InternetGateWay" -> internetGateWayDescribe(describeIamDto);
+            case "Instance" -> instanceDescribe();
+            case "ENI" -> eniDescribe(describeIamDto);
+            case "EBS" -> ebsDescribe(describeIamDto);
+            case "SecurityGroup" -> sgDescribe(describeIamDto);
+            case "IAM" -> iamDescribe(describeIamDto);
+            case "RDS" -> rdsDescribe(describeIamDto);
 
             default -> throw new IllegalArgumentException("지원되지 않는 스캔 그룹: " + scanGroup);
         };
     }
 
-    private List<Vpc> vpcDescribe() {
-        Ec2Client vpcClient = credentialManager.getEc2Client();
-        log.info("vpcClient : {}", vpcClient);
+    private List<Vpc> vpcDescribe(DescribeIamDto describeIamDto) {
+        Ec2Client ec2Client = Ec2Client.builder().build();
         List<Vpc> vpcList = new ArrayList<>();
+        String groupName = describeIamDto.getGroupName();
 
-        try (vpcClient) {
-            log.info("vpc describe : {}", vpcClient);
-            // 요청
-            DescribeVpcsRequest req = DescribeVpcsRequest.builder().build();
-            DescribeVpcsResponse res = vpcClient.describeVpcs(req);
+        try (ec2Client) {
+            log.info("Describing VPCs using: {}", ec2Client);
 
-            List<Vpc> vpcs = res.vpcs();
-            log.info("vpcs : {}", vpcs.toString());
+            DescribeVpcsRequest request = DescribeVpcsRequest.builder().build();
+            DescribeVpcsResponse response = ec2Client.describeVpcs(request);
+
+            List<Vpc> vpcs = response.vpcs();
+            log.info("Described VPCs: {}", vpcs);
 
             for (Vpc vpc : vpcs) {
-                log.info("VPC ID: {}, CIDR Block: {}, State: {}",
-                        vpc.vpcId(),
-                        vpc.cidrBlock(),
-                        vpc.stateAsString());
-                vpcList.add(vpc);
+                saveVPCToDescribe(vpc, groupName);
             }
             return vpcList;
 
@@ -248,12 +183,26 @@ public class ResourceService {
         }
     }
 
-    private List<Instance> ec2Describe() {
+    private void saveVPCToDescribe(Vpc vpc, String groupName) {
+        DescribeResult result = new DescribeResult();
+        result.setResourceId(vpc.vpcId());
+        result.setScanTarget(vpc.cidrBlock()); // 수정
+        result.setGroupName(groupName);
+        result.setScanTime(LocalDateTime.now());
+        resourceRepository.save(result);
+    }
+
+    /**
+     * EC2 스캔
+     */
+    private List<Instance> ec2Describe(DescribeIamDto describeIamDto) {
         Ec2Client ec2Client = credentialManager.getEc2Client();
         List<Instance> instanceList = new ArrayList<>();
+        String groupName = describeIamDto.getGroupName();
+
 
         try (ec2Client) {
-            log.info("vpc describe : {}", ec2Client);
+            log.info("EC2 describe : {}", ec2Client);
             // 요청
             DescribeInstancesRequest req = DescribeInstancesRequest.builder().build();
             DescribeInstancesResponse res = ec2Client.describeInstances(req);
@@ -265,22 +214,33 @@ public class ResourceService {
             log.info("instances : {}", instanceList);
 
             for (Instance instance : instanceList) {
-                log.info("Instance ID: {}, State: {}",
-                        instance.instanceId(),
-                        instance.state().name());
+                saveEC2ToDescribe(instance, groupName);
             }
             return instanceList;
 
         } catch (Ec2Exception e) {
-            log.error("Failed to describe VPCs: {}", e.awsErrorDetails().errorMessage());
+            log.error("Failed to describe EC2s: {}", e.awsErrorDetails().errorMessage());
             return new ArrayList<>();
         }
     }
 
+    /**
+     * EC2의 경우 Describe_Result에 저장하는 방식
+     */
+    private void saveEC2ToDescribe(Instance instance, String groupName) {
+        DescribeResult result = new DescribeResult();
+        result.setResourceId(instance.instanceId());
+        result.setScanTarget(instance.keyName());
+        result.setGroupName(groupName);
+        result.setScanTime(LocalDateTime.now());
+        resourceRepository.save(result);
+    }
 
-    private List<Bucket> s3Describe() {
+
+    private List<Bucket> s3Describe(DescribeIamDto describeIamDto) {
         S3Client s3Client = credentialManager.getS3Client();
         List<Bucket> s3List = new ArrayList<>();
+        String groupName = describeIamDto.getGroupName();
 
         try (s3Client) {
             log.info("S3 client : {}", s3Client.toString());
@@ -297,6 +257,8 @@ public class ResourceService {
                         bucket.creationDate());
 
                 s3List.add(bucket);
+
+                saveS3ToDescribe(bucket, groupName);
             }
             return s3List;
         } catch (S3Exception e) {
@@ -305,17 +267,351 @@ public class ResourceService {
         }
     }
 
-    private List<Map<String, String>> findPattern(String pattern, String groupName) {
-        List<Policy> policies = policyRepository.findPolicyByPatternAndGroupName(pattern, groupName);
+    private void saveS3ToDescribe(Bucket bucket, String groupName) {
+        DescribeResult result = new DescribeResult();
+        result.setResourceId(bucket.name());
+        result.setScanTarget(String.valueOf(PublicAccessBlockConfiguration.builder().build().blockPublicAcls())); // 수정
+        result.setGroupName(groupName);
+        result.setScanTime(LocalDateTime.now());
+        resourceRepository.save(result);
+    }
+
+    /**
+     * 서브넷 스캔
+     */
+    private List<Subnet> subnetDescribe(DescribeIamDto describeIamDto) {
+        Ec2Client ec2Client = credentialManager.getEc2Client();
+        List<Subnet> subnetList = new ArrayList<>();
+        String groupName = describeIamDto.getGroupName();
 
 
-        List<String> scanTargets = new ArrayList<>();
-        // 키-값 형태로 리스트 생성
-        for (Policy policy : policies) {
-            Map<String, String> policyMap = new HashMap<>();
+        try (ec2Client) {
+            log.info("EC2 describe : {}", ec2Client);
+            // 요청
+            DescribeSubnetsRequest req = DescribeSubnetsRequest.builder().build();
+            DescribeSubnetsResponse res = ec2Client.describeSubnets(req);
 
+            subnetList.addAll(res.subnets());
+
+            log.info("Subnets described: {}", subnetList);
+
+            for (Subnet subnet : subnetList) {
+                saveSubnetToDescribe(subnet, groupName);
+            }
+
+            log.info("Subnets described: {}", subnetList);
+            return subnetList;
+
+        } catch (Ec2Exception e) {
+            log.error("Failed to describe subnets: {}", e.awsErrorDetails().errorMessage());
+            return new ArrayList<>();
         }
+    }
+
+    /**
+     * subnet일 경우 저장
+     */
+    private void saveSubnetToDescribe(Subnet subnet, String groupName) {
+        DescribeResult result = new DescribeResult();
+        result.setResourceId(subnet.subnetId());
+        result.setScanTarget(subnet.cidrBlock()); // 수정
+        result.setGroupName(groupName);
+        result.setScanTime(LocalDateTime.now());
+        resourceRepository.save(result);
+    }
+
+    private List<RouteTable> routeDescribe(DescribeIamDto describeIamDto) {
+        Ec2Client ec2Client = credentialManager.getEc2Client();
+        List<RouteTable> routeTableList = new ArrayList<>();
+        String groupName = describeIamDto.getGroupName();
 
 
+        try (ec2Client) {
+            log.info("Describing Route Tables using: {}", ec2Client);
+
+            DescribeRouteTablesRequest request = DescribeRouteTablesRequest.builder().build();
+            DescribeRouteTablesResponse response = ec2Client.describeRouteTables(request);
+
+            routeTableList.addAll(response.routeTables());
+
+            log.info("Route Tables described: {}", routeTableList);
+
+            for (RouteTable routeTable : routeTableList) {
+                saveToRouteTableDescribe(routeTable, groupName);
+            }
+
+            return routeTableList;
+
+        } catch (Ec2Exception e) {
+            log.error("Failed to describe Route Tables: {}", e.awsErrorDetails().errorMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    private void saveToRouteTableDescribe(Route route, String groupName) {
+        DescribeResult result = new DescribeResult();
+        result.setResourceId(route.gatewayId()); // 수정
+        result.setScanTarget(route.destinationCidrBlock());
+        result.setGroupName(groupName);
+        result.setScanTime(LocalDateTime.now());
+        resourceRepository.save(result);
+    }
+
+    private List<InternetGateway> internetGateWayDescribe(DescribeIamDto describeIamDto) {
+        Ec2Client ec2Client = Ec2Client.builder().build();
+        List<InternetGateway> internetGatewayList = new ArrayList<>();
+        String groupName = describeIamDto.getGroupName();
+        try (ec2Client) {
+            log.info("Describing Internet Gateways using: {}", ec2Client);
+
+            DescribeInternetGatewaysRequest request = DescribeInternetGatewaysRequest.builder().build();
+            DescribeInternetGatewaysResponse response = ec2Client.describeInternetGateways(request);
+
+            internetGatewayList.addAll(response.internetGateways());
+
+            log.info("Internet Gateways described: {}", internetGatewayList);
+
+            for (InternetGateway igw : internetGatewayList) {
+                saveInternetGatewayToDescribe(igw, groupName);
+            }
+
+            return internetGatewayList;
+
+        } catch (Ec2Exception e) {
+            log.error("Failed to describe Internet Gateways: {}", e.awsErrorDetails().errorMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    private void saveInternetGatewayToDescribe(InternetGateway internetGateway, String groupName) {
+        DescribeResult result = new DescribeResult();
+        result.setResourceId(internetGateway.internetGatewayId());
+        result.setScanTarget(internetGateway.attachments().toString()); // 수정
+        result.setGroupName(groupName);
+        result.setScanTime(LocalDateTime.now());
+        resourceRepository.save(result);
+    }
+
+    private List<Instance> instanceDescribe() {
+        Ec2Client ec2Client = credentialManager.getEc2Client();
+        List<Instance> instanceList = new ArrayList<>();
+
+        try (ec2Client) {
+            log.info("EC2 describe : {}", ec2Client);
+
+            // 요청
+            DescribeInstancesRequest req = DescribeInstancesRequest.builder().build();
+            DescribeInstancesResponse res = ec2Client.describeInstances(req);
+
+            res.reservations().forEach(reservation -> {
+                instanceList.addAll(reservation.instances());
+            });
+
+            log.info("instances : {}", instanceList);
+
+            for (Instance instance : instanceList) {
+
+                // Extract and log security group names
+                for (GroupIdentifier securityGroup : instance.securityGroups()) {
+                    String groupName = securityGroup.groupName();
+                    log.info("Instance ID: {}, Security Group Name: {}", instance.instanceId(), groupName);
+                    saveInstanceToDescribe(instance, groupName);
+                }
+            }
+            return instanceList;
+
+        } catch (Ec2Exception e) {
+            log.error("Failed to describe EC2s: {}", e.awsErrorDetails().errorMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    private void saveInstanceToDescribe(Instance instance, String groupName) {
+        DescribeResult result = new DescribeResult();
+        result.setResourceId(instance.instanceId());
+        result.setScanTarget(instance.keyName());
+        result.setGroupName(groupName);
+        result.setScanTime(LocalDateTime.now());
+        resourceRepository.save(result);
+    }
+
+    private List<NetworkInterface> eniDescribe(DescribeIamDto describeIamDto) {
+        Ec2Client ec2Client = credentialManager.getEc2Client();
+        List<NetworkInterface> eniList = new ArrayList<>();
+        String groupName = describeIamDto.getGroupName();
+
+        try (ec2Client) {
+            log.info("Describing ENIs using : {}", ec2Client);
+
+            DescribeNetworkInterfacesRequest request = DescribeNetworkInterfacesRequest.builder().build();
+            DescribeNetworkInterfacesResponse response = ec2Client.describeNetworkInterfaces(request);
+
+            eniList.addAll(response.networkInterfaces());
+
+            log.info("ENIs described: {}", eniList);
+
+            for (NetworkInterface eni : eniList) {
+                saveENIToDescribe(eni, groupName);
+            }
+
+            return eniList;
+
+        } catch (Ec2Exception e) {
+            log.error("Failed to describe ENIs: {}", e.awsErrorDetails().errorMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    private void saveENIToDescribe(NetworkInterface eni, String groupName) {
+        DescribeResult result = new DescribeResult();
+        result.setResourceId(eni.networkInterfaceId());
+        result.setScanTarget(String.valueOf(eni.status()));
+        result.setGroupName(groupName);
+        result.setScanTime(LocalDateTime.now());
+        resourceRepository.save(result);
+    }
+
+    private List<Volume> ebsDescribe(DescribeIamDto describeIamDto) {
+        Ec2Client ec2Client = credentialManager.getEc2Client();
+        List<Volume> volumeList = new ArrayList<>();
+        String groupName = describeIamDto.getGroupName();
+
+        try (ec2Client) {
+            log.info("Describing EBS volumes using : {}", ec2Client);
+
+            DescribeVolumesRequest request = DescribeVolumesRequest.builder().build();
+            DescribeVolumesResponse response = ec2Client.describeVolumes(request);
+
+            volumeList.addAll(response.volumes());
+
+            log.info("EBS volumes described: {}", volumeList);
+
+            for (Volume volume : volumeList) {
+                saveVolumeToDescribe(volume, groupName);
+            }
+
+            return volumeList;
+
+        } catch (Ec2Exception e) {
+            log.error("Failed to describe EBS volumes: {}", e.awsErrorDetails().errorMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    private void saveVolumeToDescribe(Volume volume, String groupName) {
+        DescribeResult result = new DescribeResult();
+        result.setResourceId(volume.volumeId());
+        result.setScanTarget(volume.); // 수정
+        result.setGroupName(groupName);
+        result.setScanTime(LocalDateTime.now());
+        resourceRepository.save(result);
+    }
+
+    private List<SecurityGroup> sgDescribe(DescribeIamDto describeIamDto) {
+        Ec2Client ec2Client = Ec2Client.builder().build(); // Replace with your credential management if needed
+        List<SecurityGroup> securityGroupList = new ArrayList<>();
+        String groupName = describeIamDto.getGroupName();
+
+        try (ec2Client) {
+            log.info("Describing Security Groups using: {}", ec2Client);
+
+            DescribeSecurityGroupsRequest request = DescribeSecurityGroupsRequest.builder().build();
+            DescribeSecurityGroupsResponse response = ec2Client.describeSecurityGroups(request);
+
+            securityGroupList.addAll(response.securityGroups());
+
+            log.info("Security Groups described: {}", securityGroupList);
+
+            for (SecurityGroup sg : securityGroupList) {
+                saveSecurityGroupToDescribe(sg, groupName);
+            }
+
+            return securityGroupList;
+
+        } catch (Ec2Exception e) {
+            log.error("Failed to describe Security Groups: {}", e.awsErrorDetails().errorMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    private void saveSecurityGroupToDescribe(SecurityGroup sg, String groupName) {
+        DescribeResult result = new DescribeResult();
+        result.setResourceId(sg.groupId());
+        result.setScanTarget(sg.ipPermissions().toString());
+        result.setGroupName(groupName);
+        result.setScanTime(LocalDateTime.now());
+        resourceRepository.save(result);
+    }
+
+    private List<User> iamDescribe(DescribeIamDto describeIamDto) {
+        IamClient iamClient = IamClient.builder().build();
+        List<User> userList = new ArrayList<>();
+        String groupName = describeIamDto.getGroupName();
+
+        try (iamClient) {
+            log.info("Describing IAM users using : {}", iamClient);
+
+            ListUsersRequest request = ListUsersRequest.builder().build();
+            ListUsersResponse response = iamClient.listUsers(request);
+
+            userList.addAll(response.users());
+
+            log.info("IAM users described: {}", userList);
+
+            for (User user : userList) {
+                saveUserToDescribe(user, groupName);
+            }
+
+            return userList;
+
+        } catch (IamException e) {
+            log.error("Failed to describe IAM users: {}", e.awsErrorDetails().errorMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    private void saveUserToDescribe(User user, String groupName) {
+        DescribeResult result = new DescribeResult();
+        result.setResourceId(user.userId());
+        result.setScanTarget(user.userName()); // 수정
+        result.setGroupName(groupName);
+        result.setScanTime(LocalDateTime.now());
+        resourceRepository.save(result);
+    }
+
+    private List<DBInstance> rdsDescribe(DescribeIamDto describeIamDto) {
+        RdsClient rdsClient = RdsClient.builder().build();
+        List<DBInstance> dbInstanceList = new ArrayList<>();
+        String groupName = describeIamDto.getGroupName();
+
+        try (rdsClient) {
+            log.info("Describing RDS instances using : {}", rdsClient);
+
+            DescribeDbInstancesRequest request = DescribeDbInstancesRequest.builder().build();
+            DescribeDbInstancesResponse response = rdsClient.describeDBInstances(request);
+
+            dbInstanceList.addAll(response.dbInstances());
+
+            log.info("RDS instances described: {}", dbInstanceList);
+
+            for (DBInstance dbInstance : dbInstanceList) {
+                saveDBInstanceToDescribe(dbInstance, groupName);
+            }
+
+            return dbInstanceList;
+
+        } catch (RdsException e) {
+            log.error("Failed to describe RDS instances: {}", e.awsErrorDetails().errorMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    private void saveDBInstanceToDescribe(DBInstance dbInstance, String groupName) {
+        DescribeResult result = new DescribeResult();
+        result.setResourceId(dbInstance.dbiResourceId());
+        result.setScanTarget(dbInstance.dbInstanceArn()); // 수정
+        result.setGroupName(groupName);
+        result.setScanTime(LocalDateTime.now());
+        resourceRepository.save(result);
     }
 }
