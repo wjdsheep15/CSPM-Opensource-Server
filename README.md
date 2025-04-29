@@ -1,5 +1,11 @@
-# CSPM-Opensource-Server
-공개SW 개발자대회 백엔드
+# CSPM-Opensource-Server (2024.07.12 ~ 2024.08.29)
+공개SW 개발자대회 메가존 클라우드로 지원 클라우드 보안 기능 구현으로 참여
 
-<img width="752" alt="image" src="https://github.com/user-attachments/assets/7a4fe338-234d-42da-810a-8f2cc3958d0b" />
-<img width="588" alt="image" src="https://github.com/user-attachments/assets/41960e1e-be55-443b-bdc1-5309228ea67d" />
+기존 개인이 클라우드 자산을 관리하고 보안 취약점에 대해서 손쉽가 확인할 서비스가 없습니다.
+CSPM-Open Source를 제작하여 많은 분들이 자신의 클라우드 자산 관리와 보안 취약점을 확인하구 좀더 낳은 서비스를 유지할 수 있도록 도움이 되는 서비스를 제작합니다.
+
+# 프로젝트 참여자
+- 정승근: 기획자, 백엔드 개발, 프론트엔드 개발
+- 박상우: 백앤드엔드, 프론트엔드
+- 이승주: 백엔드
+- 이루다: 백엔드
